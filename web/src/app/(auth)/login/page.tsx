@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { bootstrapProfile } from "@/lib/api";
+import { AUTH_DEV_BYPASS, setDevSession } from "@/lib/auth-dev";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,8 +81,15 @@ export default function LoginPage() {
   async function onSubmit(values: FormValues) {
     setError(null);
     setCheckEmail(false);
-    const supabase = createClient();
     try {
+      if (AUTH_DEV_BYPASS) {
+        setDevSession(values.email);
+        toast.success(mode === "signup" ? "Dev account ready" : "Signed in (dev)");
+        await enterApp();
+        return;
+      }
+
+      const supabase = createClient();
       if (mode === "signup") {
         const { data: signUpData, error: signUpError } =
           await supabase.auth.signUp({

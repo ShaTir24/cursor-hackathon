@@ -21,4 +21,6 @@
 
 ## Notes
 - Canonical UI is Next.js under `web/` (Compose services: `api` + `web` only).
-- Curl / API-only checks: `e2e/SANITY.md`.
+- Expo `app/` onboarding was removed; do not use `/users/me/profile` or persona/tutor flows.
+- Dev bypass (no Supabase): Nest `AUTH_DEV_BYPASS=true` + web `NEXT_PUBLIC_AUTH_DEV_BYPASS=true`, then any email/password on `/login`.
+- API-only: `npm run sanity:onboarding` from repo root (with Nest up + `AUTH_DEV_BYPASS=true`).

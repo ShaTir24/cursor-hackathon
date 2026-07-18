@@ -56,7 +56,7 @@ class OnboardingBody {
   gradeBands?: AgeGroup[];
 }
 
-@Controller('api/v1/profiles')
+@Controller('profiles')
 export class ProfilesController {
   constructor(private readonly store: ProfileStore) {}
 

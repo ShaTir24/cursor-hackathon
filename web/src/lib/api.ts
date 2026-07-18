@@ -1,24 +1,30 @@
+import { AUTH_DEV_BYPASS, getDevUserId } from "@/lib/auth-dev";
 import { createClient } from "@/lib/supabase/client";
 import type { CatalogueItem, LessonPack, Profile, VideoStatus } from "@/lib/types";
 
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:3000";
 
-async function getAccessToken(): Promise<string> {
+async function authHeaders(): Promise<Record<string, string>> {
+  if (AUTH_DEV_BYPASS) {
+    const userId = getDevUserId();
+    if (!userId) throw new Error("Not signed in");
+    return { "x-user-id": userId };
+  }
   const supabase = createClient();
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
   const token = data.session?.access_token;
   if (!token) throw new Error("Not signed in");
-  return token;
+  return { Authorization: `Bearer ${token}` };
 }
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = await getAccessToken();
+  const auth = await authHeaders();
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...auth,
       "Content-Type": "application/json",
       ...(init?.headers as Record<string, string> | undefined),
     },
