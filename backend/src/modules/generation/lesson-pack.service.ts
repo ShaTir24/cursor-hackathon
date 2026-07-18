@@ -1,5 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  persistedFilePath,
+  readJsonFile,
+  writeJsonFileAtomic,
+} from '../../common/json-persistence';
 
 export interface LessonPackPayload {
   objectives: string[];
@@ -15,8 +20,20 @@ export interface LessonPackRecord {
 }
 
 @Injectable()
-export class LessonPackService {
+export class LessonPackService implements OnModuleInit {
   private readonly packs = new Map<string, LessonPackRecord>();
+  private readonly file = persistedFilePath('lesson-packs.json');
+
+  onModuleInit(): void {
+    const records = readJsonFile<LessonPackRecord[]>(this.file, []);
+    for (const r of records) {
+      if (r?.id) this.packs.set(r.id, r);
+    }
+  }
+
+  private flush(): void {
+    writeJsonFileAtomic(this.file, [...this.packs.values()]);
+  }
 
   create(input: {
     videoId: string;
@@ -76,6 +93,7 @@ export class LessonPackService {
       payload,
     };
     this.packs.set(record.id, record);
+    this.flush();
     return record;
   }
 

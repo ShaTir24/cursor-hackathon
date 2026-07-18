@@ -1,5 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CatalogueStore } from '../catalogue/catalogue.store';
+import {
+  persistedFilePath,
+  readJsonFile,
+  writeJsonFileAtomic,
+} from '../../common/json-persistence';
 import {
   AgeGroup,
   ProfileDto,
@@ -8,10 +13,22 @@ import {
 } from './profile.types';
 
 @Injectable()
-export class ProfileStore {
+export class ProfileStore implements OnModuleInit {
   private readonly profiles = new Map<string, ProfileRecord>();
+  private readonly file = persistedFilePath('profiles.json');
 
   constructor(private readonly catalogue: CatalogueStore) {}
+
+  onModuleInit(): void {
+    const records = readJsonFile<ProfileRecord[]>(this.file, []);
+    for (const r of records) {
+      if (r?.userId) this.profiles.set(r.userId, r);
+    }
+  }
+
+  private flush(): void {
+    writeJsonFileAtomic(this.file, [...this.profiles.values()]);
+  }
 
   bootstrap(userId: string): ProfileDto {
     let p = this.profiles.get(userId);
@@ -28,6 +45,7 @@ export class ProfileStore {
         gradeBands: [],
       };
       this.profiles.set(userId, p);
+      this.flush();
     }
     return this.toDto(p);
   }
@@ -63,6 +81,7 @@ export class ProfileStore {
       gradeBands: input.role === 'teacher' ? input.gradeBands ?? [] : [],
     };
     this.profiles.set(input.userId, p);
+    this.flush();
     return this.toDto(p);
   }
 

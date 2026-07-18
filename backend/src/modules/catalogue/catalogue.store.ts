@@ -1,6 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { v5 as uuidv5 } from 'uuid';
 import { CatalogueItem } from '../profiles/profile.types';
+
+// Fixed namespace so a slug always maps to the same UUID across restarts.
+// This keeps stored profile topicIds/interestIds valid after a reboot.
+const CATALOGUE_NAMESPACE = '3b1e4c1a-9c2a-4a5e-8f0e-7d6c5b4a3f21';
+const stableId = (slug: string): string => uuidv5(slug, CATALOGUE_NAMESPACE);
 
 const TOPIC_SEED: Array<[string, string]> = [
   ['photosynthesis', 'Photosynthesis'],
@@ -25,12 +30,12 @@ export class CatalogueStore implements OnModuleInit {
 
   onModuleInit(): void {
     this.topics = TOPIC_SEED.map(([slug, label]) => ({
-      id: uuidv4(),
+      id: stableId(slug),
       slug,
       label,
     }));
     this.interests = INTEREST_SEED.map(([slug, label]) => ({
-      id: uuidv4(),
+      id: stableId(slug),
       slug,
       label,
     }));
