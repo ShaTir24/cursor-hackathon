@@ -1,0 +1,10 @@
+# EduReels backend
+.env
+node_modules/
+dist/
+data/
+*.log
+
+# Keep fixtures
+!fixtures/**/*.mp3
+!fixtures/**/*.png
