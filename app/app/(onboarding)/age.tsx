@@ -5,8 +5,10 @@ import { OnboardingShell } from '../../src/features/onboarding/components/Onboar
 import { PrimaryButton } from '../../src/features/onboarding/components/PrimaryButton';
 import { useCatalogue } from '../../src/features/onboarding/hooks';
 import { useOnboardingStore } from '../../src/features/onboarding/store';
+import { useAppTheme } from '../../src/theme/ThemeProvider';
 
 export default function AgeScreen() {
+  const { tokens } = useAppTheme();
   const { data, isLoading, error, refetch } = useCatalogue();
   const persona = useOnboardingStore((s) => s.persona);
   const ageGroupId = useOnboardingStore((s) => s.ageGroupId);
@@ -52,7 +54,7 @@ export default function AgeScreen() {
         />
       }
     >
-      <Text className="text-sm text-slate-500 mb-2 px-1">
+      <Text className="text-sm mb-2 px-1" style={{ color: tokens.muted }}>
         Ages 5–45 in sensible buckets (not every year).
       </Text>
       <View className="flex-row flex-wrap">

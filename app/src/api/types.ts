@@ -24,6 +24,7 @@ export type Catalogue = {
 };
 
 export type Persona = 'student' | 'tutor';
+export type UiTheme = 'lagoon' | 'ink';
 
 export type Profile = {
   userId: string;
@@ -34,6 +35,8 @@ export type Profile = {
   themeIds: string[];
   displayName: string | null;
   onboardingComplete: boolean;
+  onboardingCompletedAt: string | null;
+  uiTheme: UiTheme;
   updatedAt: string;
 };
 
@@ -44,6 +47,7 @@ export type CompleteProfileInput = {
   topicIds: string[];
   themeIds: string[];
   displayName?: string;
+  uiTheme?: UiTheme;
 };
 
 export type ApiClient = {
@@ -53,4 +57,5 @@ export type ApiClient = {
   ) => Promise<{ ageGroupId: string; themes: Theme[] }>;
   getProfile: () => Promise<Profile>;
   completeProfile: (input: CompleteProfileInput) => Promise<Profile>;
+  updateUiTheme: (uiTheme: UiTheme) => Promise<Profile>;
 };

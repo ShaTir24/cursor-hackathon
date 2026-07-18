@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppTheme } from '../../../theme/ThemeProvider';
 
 type Props = {
   title: string;
@@ -31,48 +32,79 @@ export function OnboardingShell({
   children,
   footer,
 }: Props) {
+  const { tokens } = useAppTheme();
+
   return (
-    <SafeAreaView className="flex-1 bg-slate-50" testID={testID}>
+    <SafeAreaView
+      className="flex-1"
+      style={{ backgroundColor: tokens.bg }}
+      testID={testID}
+    >
       <View className="px-5 pt-4 pb-2">
-        <Text className="text-xs font-semibold tracking-widest text-brand uppercase">
+        <Text
+          className="text-xs font-semibold tracking-widest uppercase"
+          style={{ color: tokens.accent }}
+        >
           EduReels
         </Text>
-        <Text className="text-2xl font-bold text-slate-900 mt-2">{title}</Text>
-        <Text className="text-base text-slate-600 mt-1">{subtitle}</Text>
+        <Text
+          className="text-2xl font-bold mt-2"
+          style={{ color: tokens.text }}
+        >
+          {title}
+        </Text>
+        <Text className="text-base mt-1" style={{ color: tokens.muted }}>
+          {subtitle}
+        </Text>
       </View>
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#0F766E" size="large" />
-          <Text className="text-slate-500 mt-3">Loading catalogue…</Text>
+          <ActivityIndicator color={tokens.accent} size="large" />
+          <Text className="mt-3" style={{ color: tokens.muted }}>
+            Loading catalogue…
+          </Text>
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-red-600 text-center mb-4">{error}</Text>
+          <Text className="text-center mb-4" style={{ color: tokens.error }}>
+            {error}
+          </Text>
           {onRetry ? (
             <Pressable
               onPress={onRetry}
-              className="bg-brand rounded-2xl px-6 py-3 min-h-[44px] justify-center"
+              className="rounded-2xl px-6 py-3 min-h-[44px] justify-center"
+              style={{ backgroundColor: tokens.accent }}
             >
-              <Text className="text-white font-semibold">Retry</Text>
+              <Text
+                className="font-semibold"
+                style={{ color: tokens.onAccent }}
+              >
+                Retry
+              </Text>
             </Pressable>
           ) : null}
         </View>
       ) : empty ? (
         <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-slate-500 text-center">{empty}</Text>
+          <Text className="text-center" style={{ color: tokens.muted }}>
+            {empty}
+          </Text>
         </View>
       ) : (
-        <ScrollView
-          className="flex-1 px-4"
-          contentContainerClassName="pb-8"
-        >
+        <ScrollView className="flex-1 px-4" contentContainerClassName="pb-8">
           {children}
         </ScrollView>
       )}
 
       {footer && !loading && !error ? (
-        <View className="px-5 pb-6 pt-2 border-t border-slate-200 bg-white">
+        <View
+          className="px-5 pb-6 pt-2 border-t"
+          style={{
+            backgroundColor: tokens.surface,
+            borderTopColor: tokens.border,
+          }}
+        >
           {footer}
         </View>
       ) : null}

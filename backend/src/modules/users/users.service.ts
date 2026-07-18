@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { CatalogueService } from '../catalogue/catalogue.service';
 import { CompleteProfileDto } from './dto/complete-profile.dto';
+import { UpdateThemeDto } from './dto/update-theme.dto';
 import { ProfileRecord, UsersRepository } from './users.repository';
 
 @Injectable()
@@ -14,15 +15,18 @@ export class UsersService {
     private readonly catalogue: CatalogueService,
   ) {}
 
-  getProfile(userId: string): ProfileRecord {
-    const profile = this.repo.findByUserId(userId);
+  async getProfile(userId: string): Promise<ProfileRecord> {
+    const profile = await this.repo.findByUserId(userId);
     if (!profile) {
       throw new NotFoundException('Profile not found');
     }
     return profile;
   }
 
-  completeProfile(userId: string, dto: CompleteProfileDto): ProfileRecord {
+  async completeProfile(
+    userId: string,
+    dto: CompleteProfileDto,
+  ): Promise<ProfileRecord> {
     this.validateCatalogueRefs(dto);
 
     const teachingAgeGroupIds =
@@ -39,6 +43,9 @@ export class UsersService {
       );
     }
 
+    const existing = await this.repo.findByUserId(userId);
+    const now = new Date().toISOString();
+
     const profile: ProfileRecord = {
       userId,
       persona: dto.persona,
@@ -46,18 +53,39 @@ export class UsersService {
       teachingAgeGroupIds,
       topicIds: dto.topicIds,
       themeIds: dto.themeIds,
-      displayName: dto.displayName ?? null,
+      displayName: dto.displayName ?? existing?.displayName ?? null,
       onboardingComplete: true,
-      updatedAt: new Date().toISOString(),
+      onboardingCompletedAt: existing?.onboardingCompletedAt ?? now,
+      uiTheme: dto.uiTheme ?? existing?.uiTheme ?? 'lagoon',
+      updatedAt: now,
     };
     return this.repo.upsert(profile);
+  }
+
+  async updateTheme(
+    userId: string,
+    dto: UpdateThemeDto,
+  ): Promise<ProfileRecord> {
+    const existing = await this.repo.findByUserId(userId);
+    if (!existing) {
+      throw new NotFoundException('Profile not found');
+    }
+    return this.repo.upsert({
+      ...existing,
+      uiTheme: dto.uiTheme,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   private validateCatalogueRefs(dto: CompleteProfileDto): void {
     const ageIds = this.catalogue.getAgeGroupIds();
     const topicIds = this.catalogue.getTopicIds();
 
-    if (dto.persona === 'student' && dto.ageGroupId && !ageIds.has(dto.ageGroupId)) {
+    if (
+      dto.persona === 'student' &&
+      dto.ageGroupId &&
+      !ageIds.has(dto.ageGroupId)
+    ) {
       throw new BadRequestException(`Unknown ageGroupId: ${dto.ageGroupId}`);
     }
     if (dto.persona === 'tutor') {

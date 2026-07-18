@@ -4,8 +4,10 @@ import { OnboardingShell } from '../../src/features/onboarding/components/Onboar
 import { PrimaryButton } from '../../src/features/onboarding/components/PrimaryButton';
 import { useCompleteProfile } from '../../src/features/onboarding/hooks';
 import { useOnboardingStore } from '../../src/features/onboarding/store';
+import { useAppTheme } from '../../src/theme/ThemeProvider';
 
 export default function ReviewScreen() {
+  const { tokens, themeId } = useAppTheme();
   const persona = useOnboardingStore((s) => s.persona);
   const ageGroupId = useOnboardingStore((s) => s.ageGroupId);
   const teachingAgeGroupIds = useOnboardingStore((s) => s.teachingAgeGroupIds);
@@ -32,6 +34,7 @@ export default function ReviewScreen() {
         topicIds,
         themeIds,
         displayName: displayName.trim() || undefined,
+        uiTheme: themeId,
       },
       {
         onSuccess: () => router.replace('/(tabs)/profile'),
@@ -47,7 +50,11 @@ export default function ReviewScreen() {
       footer={
         <View>
           {mutation.isError ? (
-            <Text testID="onboarding-error" className="text-red-600 mb-2 text-center">
+            <Text
+              testID="onboarding-error"
+              className="mb-2 text-center"
+              style={{ color: tokens.error }}
+            >
               {mutation.error.message}
             </Text>
           ) : null}
@@ -61,35 +68,67 @@ export default function ReviewScreen() {
         </View>
       }
     >
-      <View className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
-        <Text className="text-sm text-slate-500">Persona</Text>
-        <Text className="text-base font-semibold text-slate-900 capitalize">
+      <View
+        className="rounded-2xl border p-4 mb-4"
+        style={{
+          backgroundColor: tokens.surface,
+          borderColor: tokens.border,
+        }}
+      >
+        <Text className="text-sm" style={{ color: tokens.muted }}>
+          Persona
+        </Text>
+        <Text
+          className="text-base font-semibold capitalize"
+          style={{ color: tokens.text }}
+        >
           {persona ?? '—'}
         </Text>
-        <Text className="text-sm text-slate-500 mt-3">Age</Text>
-        <Text className="text-base text-slate-800">
+        <Text className="text-sm mt-3" style={{ color: tokens.muted }}>
+          Age
+        </Text>
+        <Text className="text-base" style={{ color: tokens.text }}>
           {persona === 'student'
             ? ageGroupId
             : teachingAgeGroupIds.join(', ') || '—'}
         </Text>
-        <Text className="text-sm text-slate-500 mt-3">
+        <Text className="text-sm mt-3" style={{ color: tokens.muted }}>
           Topics ({topicIds.length})
         </Text>
-        <Text className="text-base text-slate-800">{topicIds.join(', ')}</Text>
-        <Text className="text-sm text-slate-500 mt-3">
+        <Text className="text-base" style={{ color: tokens.text }}>
+          {topicIds.join(', ')}
+        </Text>
+        <Text className="text-sm mt-3" style={{ color: tokens.muted }}>
           Themes ({themeIds.length})
         </Text>
-        <Text className="text-base text-slate-800">{themeIds.join(', ')}</Text>
+        <Text className="text-base" style={{ color: tokens.text }}>
+          {themeIds.join(', ')}
+        </Text>
+        <Text className="text-sm mt-3" style={{ color: tokens.muted }}>
+          UI theme
+        </Text>
+        <Text className="text-base capitalize" style={{ color: tokens.text }}>
+          {themeId}
+        </Text>
       </View>
 
-      <Text className="text-sm font-semibold text-slate-700 mb-2 px-1">
+      <Text
+        className="text-sm font-semibold mb-2 px-1"
+        style={{ color: tokens.text }}
+      >
         Display name (optional)
       </Text>
       <TextInput
         value={displayName}
         onChangeText={setDisplayName}
         placeholder="e.g. Maya"
-        className="bg-white border border-slate-200 rounded-2xl px-4 py-3 text-base text-slate-900 min-h-[44px]"
+        placeholderTextColor={tokens.muted}
+        className="rounded-2xl px-4 py-3 text-base min-h-[44px] border"
+        style={{
+          backgroundColor: tokens.surface,
+          borderColor: tokens.border,
+          color: tokens.text,
+        }}
         maxLength={40}
       />
     </OnboardingShell>

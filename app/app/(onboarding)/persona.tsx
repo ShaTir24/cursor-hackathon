@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
+import type { Persona } from '../../src/api/types';
 import { OnboardingShell } from '../../src/features/onboarding/components/OnboardingShell';
 import { PrimaryButton } from '../../src/features/onboarding/components/PrimaryButton';
+import { ThemePicker } from '../../src/features/onboarding/components/ThemePicker';
 import { useOnboardingStore } from '../../src/features/onboarding/store';
-import type { Persona } from '../../src/api/types';
+import { useAppTheme } from '../../src/theme/ThemeProvider';
 
 const OPTIONS: { id: Persona; title: string; body: string; testID: string }[] =
   [
@@ -24,6 +26,7 @@ const OPTIONS: { id: Persona; title: string; body: string; testID: string }[] =
 export default function PersonaScreen() {
   const persona = useOnboardingStore((s) => s.persona);
   const setPersona = useOnboardingStore((s) => s.setPersona);
+  const { tokens } = useAppTheme();
 
   return (
     <OnboardingShell
@@ -38,6 +41,7 @@ export default function PersonaScreen() {
         />
       }
     >
+      <ThemePicker />
       <View className="mt-2">
         {OPTIONS.map((opt) => {
           const selected = persona === opt.id;
@@ -46,16 +50,21 @@ export default function PersonaScreen() {
               key={opt.id}
               testID={opt.testID}
               onPress={() => setPersona(opt.id)}
-              className={`rounded-2xl p-5 mb-3 border min-h-[44px] ${
-                selected
-                  ? 'bg-brand-soft border-brand'
-                  : 'bg-white border-slate-200'
-              }`}
+              className="rounded-2xl p-5 mb-3 border min-h-[44px]"
+              style={{
+                backgroundColor: selected ? tokens.accentSoft : tokens.surface,
+                borderColor: selected ? tokens.accent : tokens.border,
+              }}
             >
-              <Text className="text-lg font-bold text-slate-900">
+              <Text
+                className="text-lg font-bold"
+                style={{ color: tokens.text }}
+              >
                 {opt.title}
               </Text>
-              <Text className="text-slate-600 mt-1">{opt.body}</Text>
+              <Text className="mt-1" style={{ color: tokens.muted }}>
+                {opt.body}
+              </Text>
             </Pressable>
           );
         })}

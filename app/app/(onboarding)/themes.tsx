@@ -9,8 +9,10 @@ import {
   useCatalogue,
 } from '../../src/features/onboarding/hooks';
 import { useOnboardingStore } from '../../src/features/onboarding/store';
+import { useAppTheme } from '../../src/theme/ThemeProvider';
 
 export default function ThemesScreen() {
+  const { tokens } = useAppTheme();
   const { data, isLoading, error, refetch } = useCatalogue();
   const persona = useOnboardingStore((s) => s.persona);
   const ageGroupId = useOnboardingStore((s) => s.ageGroupId);
@@ -72,7 +74,7 @@ export default function ThemesScreen() {
         ))}
       </View>
       {persona === 'tutor' && ageIds.length > 1 ? (
-        <Text className="text-xs text-slate-500 mt-3 px-1">
+        <Text className="text-xs mt-3 px-1" style={{ color: tokens.muted }}>
           Showing themes across all selected teaching ages.
         </Text>
       ) : null}

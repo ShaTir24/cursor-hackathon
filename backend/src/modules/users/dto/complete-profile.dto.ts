@@ -41,4 +41,8 @@ export class CompleteProfileDto {
   @MinLength(2)
   @MaxLength(40)
   displayName?: string;
+
+  @IsOptional()
+  @IsIn(['lagoon', 'ink'])
+  uiTheme?: 'lagoon' | 'ink';
 }

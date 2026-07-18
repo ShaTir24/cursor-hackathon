@@ -14,6 +14,7 @@ After sign-up, users pick a persona (student or tutor), an age group (5–45), a
 - Editing profile after first complete (can PATCH later; not in MVP UI).
 - Real Supabase Auth UI polish beyond token-guarded profile write.
 - Playwright sanity (explicitly skipped this delivery).
+- Seeding catalogue rows into Postgres (catalogue remains JSON; profiles store id arrays).
 
 ## API contract (FROZEN)
 
@@ -48,16 +49,29 @@ Types:
 | | |
 |---|---|
 | Auth | Bearer JWT — user id from token **never** body |
-| Request | `CompleteProfileDto`: `persona: 'student'\|'tutor'`, `ageGroupId: string` (student) **or** `teachingAgeGroupIds: string[]` (tutor, min 1), `topicIds: string[]` (min 1, max 12), `themeIds: string[]` (min 1, max 8), `displayName?: string` (2–40) |
+| Request | `CompleteProfileDto`: `persona: 'student'\|'tutor'`, `ageGroupId: string` (student) **or** `teachingAgeGroupIds: string[]` (tutor, min 1), `topicIds: string[]` (min 1, max 12), `themeIds: string[]` (min 1, max 8), `displayName?: string` (2–40), `uiTheme?: 'lagoon'\|'ink'` |
 | Response `200` | `Profile` with `onboardingComplete: true` |
 | Errors | `400` validation, `401`, `404` unknown catalogue ids |
 
-`Profile`: `{ userId, persona, ageGroupId | null, teachingAgeGroupIds, topicIds, themeIds, displayName, onboardingComplete, updatedAt }`
+### `PATCH /api/v1/users/me/profile/theme` (additive)
+| | |
+|---|---|
+| Auth | Bearer JWT |
+| Request | `{ uiTheme: 'lagoon'\|'ink' }` |
+| Response `200` | `Profile` |
+| Errors | `400`, `401`, `404` |
+
+`Profile`: `{ userId, persona, ageGroupId | null, teachingAgeGroupIds, topicIds, themeIds, displayName, onboardingComplete, onboardingCompletedAt | null, uiTheme, updatedAt }`
 
 ## DB delta
-- `profiles`: add `persona text check (persona in ('student','tutor'))`, `age_group_id text null`, `teaching_age_group_ids text[] default '{}'`, `topic_ids text[] default '{}'`, `theme_ids text[] default '{}'`, `display_name text null`, `onboarding_complete boolean default false`, `updated_at timestamptz`.
-- Catalogue tables optional for MVP: serve from `backend/src/modules/catalogue/data/age-themes.json`; migration may seed `catalogue_topics` / `catalogue_interests` later.
-- See `backend/migrations/001_onboarding_profiles.sql`.
+- Source of truth: `backend/migrations/002_profiles_supabase.sql` (supersedes sketch in `001_*`).
+- `profiles` table (text `user_id` PK for MVP Bearer-userId; migrate to uuid FK → auth.users when Supabase Auth lands):
+  - `persona`, `age_group_id`, `teaching_age_group_ids text[]`, `topic_ids text[]`, `theme_ids text[]`
+  - `display_name`, `onboarding_complete boolean`, `onboarding_completed_at timestamptz null`
+  - `ui_theme text check (ui_theme in ('lagoon','ink')) default 'lagoon'`
+  - `updated_at timestamptz`
+- Catalogue stays JSON-seeded (`age-themes.json`); profile stores catalogue **ids** (not FKs).
+- Env (never commit secrets): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (server). Optional later: anon key for FE Auth.
 
 ## UI states
 | Screen | loading | empty | error | success | testIDs |
@@ -67,9 +81,18 @@ Types:
 | Topics | spinner | "No topics" | retry | multi-select chips | `onboarding-topics`, `topic-chip-<id>` |
 | Themes | spinner | "Pick an age first" | retry | multi-select chips | `onboarding-themes`, `theme-chip-<id>` |
 | Review/submit | submitting | — | inline + retry | navigates to profile | `onboarding-submit`, `onboarding-error` |
+| UI theme picker | — | — | — | lagoon/ink chips applied live | `theme-picker`, `theme-lagoon`, `theme-ink` |
+
+## UI color themes (persistent)
+- **lagoon** (default): deep teal/cyan brand on cool paper — not purple, not terracotta cream.
+  - bg `#F2F7F6`, surface `#FFFFFF`, text `#0B1F1C`, muted `#5B6E6A`, accent `#0D7377`, border `#C9D9D5`, success `#1F7A4C`, error `#B42318`
+- **ink**: charcoal slate with seafoam accent (light “pro” mode, not generic dark glow).
+  - bg `#12181A`, surface `#1C2528`, text `#E8F0EE`, muted `#8FA3A0`, accent `#3DDC97`, border `#2E3A3D`, success `#3DDC97`, error `#F07178`
+- Persist: AsyncStorage key `edureels.uiTheme` (RN-web + native) **and** `profiles.ui_theme` via PATCH when profile exists.
+- Tokens exposed as NativeWind `colors.app.*` + runtime CSS variables on web via `ThemeProvider`.
 
 ## Parallelization verdict
-**PARALLEL** — standard CRUD profile + static catalogue; FE builds against mocks from this contract while BE implements the same shapes. Persona differences are DTO branches only.
+**PARALLEL** — profile CRUD + static catalogue; persistence is a repository swap. UI theme is additive PATCH + local store.
 
 ## Skill plan
 | Stage | Run/Skip | Reason |
@@ -114,7 +137,10 @@ flowchart LR
 ```
 
 ## Design
-- **Component tree**: `OnboardingLayout` → `PersonaStep` | `AgeStep` | `TopicsStep` | `ThemesStep` | `ReviewStep` (View/Text/Pressable/FlatList chips).
-- **NativeWind**: `flex-1 bg-slate-50`, chips `rounded-full px-4 py-3`, selected `bg-teal-600 text-white`, primary CTA `bg-teal-700 rounded-2xl min-h-[44px]`.
-- **Navigation**: `app/(onboarding)/persona.tsx` → `age.tsx` → `topics.tsx` → `themes.tsx` → `review.tsx`; gate from auth if `!onboardingComplete`.
+- **Component tree**: `ThemeProvider` → `OnboardingLayout` → steps + `ThemePicker` (View/Text/Pressable chips).
+- **NativeWind**: `bg-app-bg`, `bg-app-surface`, `text-app-text`, `text-app-muted`, selected chips `bg-app-accent text-white`, CTA `bg-app-accent rounded-2xl min-h-[44px]`.
+- **Navigation**: unchanged `(onboarding)/*` → `(tabs)/profile`; theme picker on persona + profile.
 - **testIDs**: as in UI states table.
+
+## Persistence note (2026-07-18)
+In-memory `UsersRepository` replaced by Supabase client (`@supabase/supabase-js`) using service role on the Nest server. Migration applied via Supabase MCP + kept in repo.

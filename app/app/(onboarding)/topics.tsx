@@ -5,8 +5,10 @@ import { OnboardingShell } from '../../src/features/onboarding/components/Onboar
 import { PrimaryButton } from '../../src/features/onboarding/components/PrimaryButton';
 import { useCatalogue } from '../../src/features/onboarding/hooks';
 import { useOnboardingStore } from '../../src/features/onboarding/store';
+import { useAppTheme } from '../../src/theme/ThemeProvider';
 
 export default function TopicsScreen() {
+  const { tokens } = useAppTheme();
   const { data, isLoading, error, refetch } = useCatalogue();
   const topicIds = useOnboardingStore((s) => s.topicIds);
   const toggleTopic = useOnboardingStore((s) => s.toggleTopic);
@@ -33,7 +35,10 @@ export default function TopicsScreen() {
     >
       {domains.map((domain) => (
         <View key={domain} className="mb-4">
-          <Text className="text-sm font-bold text-slate-700 px-1 mb-1">
+          <Text
+            className="text-sm font-bold px-1 mb-1"
+            style={{ color: tokens.text }}
+          >
             {domain}
           </Text>
           <View className="flex-row flex-wrap">

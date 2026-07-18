@@ -3,6 +3,7 @@ import type {
   Catalogue,
   CompleteProfileInput,
   Profile,
+  UiTheme,
 } from './types';
 
 const BASE_URL =
@@ -39,5 +40,10 @@ export const realApi: ApiClient = {
     request<Profile>('/users/me/profile', {
       method: 'PUT',
       body: JSON.stringify(input),
+    }),
+  updateUiTheme: (uiTheme: UiTheme) =>
+    request<Profile>('/users/me/profile/theme', {
+      method: 'PATCH',
+      body: JSON.stringify({ uiTheme }),
     }),
 };

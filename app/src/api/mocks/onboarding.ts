@@ -3,6 +3,7 @@ import type {
   Catalogue,
   CompleteProfileInput,
   Profile,
+  UiTheme,
 } from '../types';
 import catalogueJson from './catalogue.json';
 
@@ -47,6 +48,7 @@ export const mockApi: ApiClient = {
   },
 
   async completeProfile(input: CompleteProfileInput) {
+    const now = new Date().toISOString();
     profile = {
       userId: 'mock-user',
       persona: input.persona,
@@ -56,8 +58,20 @@ export const mockApi: ApiClient = {
       themeIds: input.themeIds,
       displayName: input.displayName ?? null,
       onboardingComplete: true,
-      updatedAt: new Date().toISOString(),
+      onboardingCompletedAt: now,
+      uiTheme: input.uiTheme ?? 'lagoon',
+      updatedAt: now,
     };
     return delay(profile, 400);
+  },
+
+  async updateUiTheme(uiTheme: UiTheme) {
+    if (!profile) throw new Error('Profile not found');
+    profile = {
+      ...profile,
+      uiTheme,
+      updatedAt: new Date().toISOString(),
+    };
+    return delay(profile);
   },
 };
