@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { BookOpen, Home, LogOut, Settings2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getMe } from "@/lib/api";
+import { AUTH_DEV_BYPASS, clearDevSession } from "@/lib/auth-dev";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
 import { EduReelsLogo } from "@/components/brand/edu-reels-logo";
@@ -40,6 +41,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   async function signOut() {
+    if (AUTH_DEV_BYPASS) {
+      clearDevSession();
+      router.replace("/login");
+      return;
+    }
     const supabase = createClient();
     await supabase.auth.signOut();
     router.replace("/login");

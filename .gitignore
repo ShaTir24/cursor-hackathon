@@ -1,16 +1,17 @@
 *.env
 .env
+.env.local
+docker-compose.env
 node_modules
 .DS_Store
 dist
 coverage
-.expo
 *.log
-app/.expo
 backend/dist
+web/.next
 outputs
 demo-outputs
-
+data
 
 *.mp4
 *.mp3
@@ -21,7 +22,4 @@ demo-outputs
 *.m4b
 *.m4p
 *.m4v
-*.m4s
-*.m4s
-*.m4s
 *.m4s

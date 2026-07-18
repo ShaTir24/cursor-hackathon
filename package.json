@@ -2,11 +2,11 @@
   "name": "edureels",
   "private": true,
   "scripts": {
-    "web": "npm run web --prefix app",
-    "ios": "npm run ios --prefix app",
+    "web": "npm run dev --prefix web",
     "backend": "npm run start:dev --prefix backend",
     "dev": "npx concurrently -k \"npm run backend\" \"npm run web\"",
-    "test:backend": "npm test --prefix backend"
+    "test:backend": "npm test --prefix backend",
+    "sanity:onboarding": "npx ts-node --transpile-only backend/scripts/sanity-onboarding.ts"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"
