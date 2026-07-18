@@ -53,7 +53,7 @@ async function main() {
   const times = [0.1, 0.4, 0.7].map((p) => p * duration)
   for (const t of times) {
     await page.evaluate((time) => window.__MS.frameAt(time), t)
-    const out = path.join(OUT_DIR, `smoke_2d_special_relativity_${String(t.toFixed(1)).replace('.', '_')}.png`)
+    const out = path.join(OUT_DIR, `smoke_2d_birthday_paradox_${String(t.toFixed(1)).replace('.', '_')}.png`)
     await page.locator('#stage').screenshot({ path: out, type: 'png' })
     console.log('wrote', out)
   }

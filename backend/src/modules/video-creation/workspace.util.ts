@@ -144,3 +144,44 @@ export function resolveWorkspaceOutput(
 
   return findNewestMp4(workspace);
 }
+
+export type WorkspaceVideoMeta = {
+  index: string;
+  mtimeMs: number;
+  size: number;
+};
+
+/**
+ * List numbered workspaces under `<username>` that have a playable MP4,
+ * newest first. Returns [] when the username is invalid or the user folder
+ * does not exist.
+ */
+export function listUserWorkspaceVideos(username: string): WorkspaceVideoMeta[] {
+  if (!USERNAME_RE.test(username)) return [];
+
+  const root = resolveWorkspacesRoot();
+  const userDir = resolve(join(root, username));
+  const rootWithSep = root.endsWith('/') ? root : `${root}/`;
+  if (!userDir.startsWith(rootWithSep)) return [];
+  if (!existsSync(userDir) || !statSync(userDir).isDirectory()) return [];
+
+  const out: WorkspaceVideoMeta[] = [];
+  for (const entry of readdirSync(userDir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || !INDEX_RE.test(entry.name)) continue;
+    const file = resolveWorkspaceOutput(username, entry.name);
+    if (!file) continue;
+    try {
+      const st = statSync(file);
+      out.push({
+        index: entry.name,
+        mtimeMs: st.mtimeMs,
+        size: st.size,
+      });
+    } catch {
+      // skip unreadable entries
+    }
+  }
+
+  out.sort((a, b) => b.mtimeMs - a.mtimeMs || Number(b.index) - Number(a.index));
+  return out;
+}

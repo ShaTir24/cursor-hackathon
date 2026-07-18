@@ -8,17 +8,19 @@ const ROOT = path.join(__dirname, '..')
 const KENNEY = path.join(ROOT, '..', 'kenney', 'assets')
 const DST = path.join(ROOT, 'assets', 'kenney')
 
-// Asset cast from plans/special_relativity_20260718.md (verified against inventory)
+// Asset cast from plans/birthday_paradox_20260718.md (verified against inventory)
 const NEEDED = [
-  'shape-characters/PNG/Default/blue_body_squircle.png',
-  'shape-characters/PNG/Default/face_a.png',
-  'shape-characters/PNG/Default/blue_hand_point.png',
-  'shape-characters/PNG/Default/blue_hand_open.png',
+  'shape-characters/PNG/Default/yellow_body_squircle.png',
+  'shape-characters/PNG/Default/face_c.png',
+  'shape-characters/PNG/Default/hand_yellow_point.png',
+  'shape-characters/PNG/Default/hand_yellow_open.png',
   'shape-characters/PNG/Default/tile_exclamation.png',
-  'game-icons/PNG/White/2x/star.png',
-  'game-icons/PNG/White/2x/checkmark.png',
-  'game-icons/PNG/White/2x/arrowRight.png',
-  'game-icons/PNG/White/2x/warning.png',
+  'game-icons/PNG/Black/2x/question.png',
+  'game-icons/PNG/Black/2x/cross.png',
+  'game-icons/PNG/Black/2x/checkmark.png',
+  'game-icons/PNG/Black/2x/arrowRight.png',
+  'game-icons/PNG/Black/2x/exclamation.png',
+  'game-icons/PNG/Black/2x/star.png',
 ]
 
 function copyOne(rel) {

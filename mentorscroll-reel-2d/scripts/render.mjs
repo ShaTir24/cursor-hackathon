@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
  * Headless render: Playwright captures #stage frames → FFmpeg MP4 + WebM
+ * Streams JPEG frames into ffmpeg (avoids writing ~GB of PNGs to disk).
  */
 import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
@@ -14,7 +15,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
 const OUT_DIR = path.join(ROOT, '..', 'outputs')
 const PORT = 5178
-const TOPIC = 'special_relativity'
+const TOPIC = 'birthday_paradox'
 
 function mime(p) {
   if (p.endsWith('.html')) return 'text/html'
@@ -40,7 +41,8 @@ function startServer() {
     res.writeHead(200, { 'Content-Type': mime(filePath) })
     createReadStream(filePath).pipe(res)
   })
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    server.once('error', reject)
     server.listen(PORT, '127.0.0.1', () => resolve(server))
   })
 }
@@ -53,8 +55,16 @@ function runFfmpeg(args) {
   })
 }
 
+function spawnFfmpegPipe(args) {
+  const p = spawn('ffmpeg', args, { stdio: ['pipe', 'inherit', 'inherit'] })
+  const done = new Promise((resolve, reject) => {
+    p.on('error', reject)
+    p.on('close', (code) => (code === 0 ? resolve() : reject(new Error(`ffmpeg exit ${code}`))))
+  })
+  return { proc: p, done }
+}
+
 async function main() {
-  // sync assets first if missing
   const sync = path.join(__dirname, 'sync-assets.mjs')
   await import(sync)
 
@@ -62,8 +72,6 @@ async function main() {
   const stamp = Date.now()
   const mp4 = path.join(OUT_DIR, `mentorscroll2d_${TOPIC}_${stamp}.mp4`)
   const webm = path.join(OUT_DIR, `mentorscroll2d_${TOPIC}_${stamp}.webm`)
-  const framesDir = path.join(OUT_DIR, `frames_2d_${TOPIC}_${stamp}`)
-  fs.mkdirSync(framesDir, { recursive: true })
 
   console.log('Starting static server...')
   const server = await startServer()
@@ -97,59 +105,49 @@ async function main() {
   if (!meta.visualOk) throw new Error('visualOk failed — diagrams would look frozen')
 
   const totalFrames = Math.round(meta.duration * meta.fps)
-  console.log(`Rendering ${totalFrames} frames @ ${meta.fps}fps (${meta.duration}s)`)
+  console.log(`Streaming ${totalFrames} frames @ ${meta.fps}fps (${meta.duration}s) → MP4`)
 
+  const { proc: ff, done: ffDone } = spawnFfmpegPipe([
+    '-y',
+    '-f',
+    'image2pipe',
+    '-framerate',
+    String(meta.fps),
+    '-i',
+    'pipe:0',
+    '-c:v',
+    'libx264',
+    '-pix_fmt',
+    'yuv420p',
+    '-crf',
+    '18',
+    '-movflags',
+    '+faststart',
+    mp4,
+  ])
+
+  const stage = page.locator('#stage')
   for (let i = 0; i < totalFrames; i++) {
     const t = i / meta.fps
     await page.evaluate((time) => window.__MS.frameAt(time), t)
-    const framePath = path.join(framesDir, `frame_${String(i).padStart(5, '0')}.png`)
-    await page.locator('#stage').screenshot({ path: framePath, type: 'png' })
-    if (i % 30 === 0) console.log(`  frame ${i}/${totalFrames}`)
+    const buf = await page.screenshot({
+      type: 'jpeg',
+      quality: 90,
+      clip: { x: 0, y: 0, width: 1080, height: 1920 },
+      animations: 'disabled',
+      caret: 'hide',
+    })
+    if (!ff.stdin.write(buf)) {
+      await new Promise((r) => ff.stdin.once('drain', r))
+    }
+    if (i % 90 === 0) console.log(`  frame ${i}/${totalFrames}`)
   }
+  ff.stdin.end()
+  await ffDone
 
   await browser.close()
   server.close()
 
-  console.log('Encoding MP4 + WebM...')
-  await Promise.all([
-    runFfmpeg([
-      '-y',
-      '-framerate',
-      String(meta.fps),
-      '-i',
-      path.join(framesDir, 'frame_%05d.png'),
-      '-c:v',
-      'libx264',
-      '-pix_fmt',
-      'yuv420p',
-      '-crf',
-      '18',
-      '-movflags',
-      '+faststart',
-      mp4,
-    ]),
-    runFfmpeg([
-      '-y',
-      '-framerate',
-      String(meta.fps),
-      '-i',
-      path.join(framesDir, 'frame_%05d.png'),
-      '-c:v',
-      'libvpx-vp9',
-      '-b:v',
-      '0',
-      '-crf',
-      '32',
-      '-row-mt',
-      '1',
-      webm,
-    ]),
-  ])
-
-  console.log('Removing temporary frames...')
-  fs.rmSync(framesDir, { recursive: true, force: true })
-
-  // Mux ElevenLabs VO when present
   const vo = path.join(OUT_DIR, 'audio', `${TOPIC}_vo.mp3`)
   let withVo = null
   if (fs.existsSync(vo)) {
@@ -174,7 +172,6 @@ async function main() {
 
   console.log('\nDone!')
   console.log('MP4:', mp4)
-  console.log('WebM:', webm)
   if (withVo) console.log('MP4+VO:', withVo)
 }
 

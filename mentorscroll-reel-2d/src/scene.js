@@ -1,92 +1,90 @@
 const WIDTH = 1080
 const HEIGHT = 1920
-/** Audio-locked to Alice VO + forced alignment (plans/special_relativity_20260718.md) */
-const DURATION = 36.74
+/** Audio-locked to Laura VO + forced alignment (plans/birthday_paradox_20260718.md) */
+const DURATION = 43.319
 const FPS = 30
 
 const K = (rel) => `../assets/kenney/${rel}`
-const W = (rel) => `../assets/web/${rel}`
 
 const BEATS = [
   {
     t0: 0.099,
-    t1: 4.92,
-    html: `<span class="law">WAIT</span>In 1905, Einstein rewrote space and time.`,
+    t1: 9.0,
+    html: `<span class="law">WAIT</span>23 people. ~50% chance two share a birthday.`,
     callout: 'WAIT',
     diagram: 'hook',
     hand: 'point',
-    tick: 0,
+    progress: 0.12,
+    showActor: true,
   },
   {
-    t0: 4.92,
-    t1: 16.94,
-    html: `<span class="law">TWO RULES</span>Same physics in every steady frame. Light always travels at C.`,
-    callout: '2 RULES',
-    diagram: 'postulates',
+    t0: 9.0,
+    t1: 17.279,
+    html: `<span class="law">GUT</span>~183 is the wrong question — that's matching YOUR day.`,
+    callout: 'GUT',
+    diagram: 'gut',
     hand: 'point',
-    tick: 1,
+    progress: 0.35,
+    showActor: false,
   },
   {
-    t0: 16.94,
-    t1: 22.379,
-    html: `<span class="law">TIME DILATION</span>A moving clock ticks slower.`,
-    callout: 'TIME',
-    diagram: 'dilation',
-    hand: 'point',
-    tick: 2,
-  },
-  {
-    t0: 22.379,
-    t1: 27.819,
-    html: `<span class="law">LENGTH</span>Moving rulers shrink along the direction of motion.`,
-    callout: 'LENGTH',
-    diagram: 'length',
+    t0: 17.279,
+    t1: 28.299,
+    html: `<span class="law">PAIRS</span>Not one birthday — every pair. 23 → 253 pairs.`,
+    callout: 'PAIRS',
+    diagram: 'pairs',
     hand: 'open',
-    tick: 3,
+    progress: 0.58,
+    showActor: false,
   },
   {
-    t0: 27.819,
-    t1: 32.2,
-    html: `<span class="law">E = mc²</span>Mass holds energy.`,
-    callout: 'E=mc²',
-    diagram: 'emc2',
+    t0: 28.299,
+    t1: 39.52,
+    html: `<span class="law">CLIMB</span>10 → ~12%. 23 → ~50%. 50 → ~97%.`,
+    callout: 'CLIMB',
+    diagram: 'climb',
     hand: 'point',
-    tick: 4,
+    progress: 0.82,
+    showActor: false,
   },
   {
-    t0: 32.2,
-    t1: 36.74,
-    html: `<span class="law">RELATIVITY</span>Space and time are not absolute.`,
+    t0: 39.52,
+    t1: 43.319,
+    html: `<span class="law">DONE</span>Pairs explode faster than you think.`,
     callout: 'DONE',
     diagram: 'closer',
     hand: 'open',
-    tick: 5,
+    progress: 1,
+    showActor: true,
   },
 ]
 
 const HAND_SRC = {
-  open: K('shape-characters/PNG/Default/blue_hand_open.png'),
-  point: K('shape-characters/PNG/Default/blue_hand_point.png'),
+  open: K('shape-characters/PNG/Default/hand_yellow_open.png'),
+  point: K('shape-characters/PNG/Default/hand_yellow_point.png'),
 }
 
-const CREAM = '#f3efe3'
-const INK = '#1a3d2e'
-const CORAL = '#e07a5f'
-const MUTE = '#a8c4b4'
-const FONT = 'American Typewriter, Courier New, monospace'
+const INK = '#0b1f2a'
+const CYAN = '#00a3c4'
+const MUTE = '#5a7a88'
+const BOARD = '#f4fbfd'
+const WHITE = '#ffffff'
+const FONT = 'DM Sans, system-ui, sans-serif'
+const FONT_DISP = 'Space Grotesk, system-ui, sans-serif'
+const FONT_MONO = 'IBM Plex Mono, ui-monospace, monospace'
 
 const diagramEl = document.getElementById('diagram')
 const captionInner = document.getElementById('caption-inner')
 const callout = document.getElementById('callout')
 const calloutText = document.getElementById('callout-text')
-const ticks = [...document.querySelectorAll('#progress > span')]
+const progressEl = document.getElementById('progress')
 const body = document.getElementById('body')
 const face = document.getElementById('face')
 const hand = document.getElementById('hand')
 const actor = document.getElementById('actor')
 
-body.src = K('shape-characters/PNG/Default/blue_body_squircle.png')
-face.src = K('shape-characters/PNG/Default/face_a.png')
+body.src = K('shape-characters/PNG/Default/yellow_body_squircle.png')
+face.src = K('shape-characters/PNG/Default/face_c.png')
 
 function beatAt(t) {
   return BEATS.find((b) => t >= b.t0 && t < b.t1) || BEATS[BEATS.length - 1]
@@ -100,179 +98,247 @@ function easeOut(t) {
   return 1 - (1 - clamp01(t)) ** 3
 }
 
+function easeInOut(t) {
+  const x = clamp01(t)
+  return x < 0.5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2
+}
+
 function svgWrap(inner) {
-  return `<svg viewBox="0 0 952 900" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">${inner}</svg>`
+  return `<div class="page"><svg viewBox="0 0 860 1100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">${inner}</svg></div>`
+}
+
+function defs() {
+  return `
+    <defs>
+      <filter id="pop"><feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="${INK}" flood-opacity="0.18"/></filter>
+      <filter id="soft"><feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.12"/></filter>
+    </defs>
+  `
+}
+
+function personDot(cx, cy, r, fill, opacity = 1) {
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" opacity="${opacity}"/>`
+}
+
+/** Scatter of crowd dots for room visual */
+function crowdDots(n, cx, cy, spread, localT, accentEvery = 7) {
+  const parts = []
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + localT * 0.15
+    const ring = 0.35 + (i % 5) * 0.12
+    const x = cx + Math.cos(a) * spread * ring
+    const y = cy + Math.sin(a) * spread * ring * 0.72
+    const appear = easeOut(clamp01((localT - i * 0.04) / 0.25))
+    const fill = i % accentEvery === 0 ? CYAN : INK
+    parts.push(personDot(x, y, 10 + (i % 3) * 2, fill, 0.35 + 0.65 * appear))
+  }
+  return parts.join('')
 }
 
 function diagramHook(localT) {
-  const fade = easeOut(localT / 0.6)
-  const dateY = 720 - easeOut(clamp01((localT - 0.4) / 0.5)) * 40
-  const bangPulse = 1 + 0.08 * Math.sin(localT * 8)
+  const fade = easeOut(localT / 0.35)
+  const numScale = 0.55 + 0.45 * easeOut(clamp01(localT / 0.45))
+  const pctIn = easeOut(clamp01((localT - 1.2) / 0.45))
+  const pulse = 1 + 0.05 * Math.sin(localT * 7) * pctIn
+  const crowd = easeOut(clamp01((localT - 0.4) / 0.6))
   return svgWrap(`
-    <defs>
-      <clipPath id="pclip"><rect x="286" y="80" width="380" height="480" rx="12"/></clipPath>
-      <filter id="chalk"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/>
-        <feDisplacementMap in="SourceGraphic" in2="n" scale="1.2"/></filter>
-    </defs>
-    <rect x="270" y="64" width="412" height="512" rx="16" fill="${INK}" opacity="0.35"/>
-    <rect x="286" y="80" width="380" height="480" rx="12" fill="${CREAM}" opacity="${0.15 * fade}"/>
-    <image href="${W('einstein_1905.jpg')}" x="286" y="80" width="380" height="480"
-      clip-path="url(#pclip)" opacity="${fade}" preserveAspectRatio="xMidYMid slice"/>
-    <rect x="286" y="80" width="380" height="480" rx="12" fill="none" stroke="${CREAM}" stroke-width="4" opacity="${0.85 * fade}"/>
-    <image href="${K('shape-characters/PNG/Default/tile_exclamation.png')}"
-      x="${120}" y="${100}" width="${72 * bangPulse}" height="${72 * bangPulse}" opacity="${fade}"/>
-    <text x="476" y="${dateY}" text-anchor="middle" fill="${CREAM}" font-family="${FONT}"
-      font-size="64" font-weight="700" opacity="${fade}" filter="url(#chalk)">1905</text>
-    <text x="476" y="820" text-anchor="middle" fill="${CORAL}" font-family="${FONT}"
-      font-size="36" letter-spacing="4" opacity="${fade * easeOut(clamp01((localT - 0.8) / 0.4))}">SPACE · TIME</text>
-  `)
-}
-
-function diagramPostulates(localT) {
-  const a = easeOut(clamp01(localT / 0.55))
-  const b = easeOut(clamp01((localT - 1.2) / 0.55))
-  const beam = 0.45 + 0.55 * Math.abs(Math.sin(localT * 2.2))
-  const twoCue = localT >= 7.5 // ~"Two: light" relative to beat start ~12.559-4.92
-  return svgWrap(`
-    <defs>
-      <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="${CORAL}" stop-opacity="0"/>
-        <stop offset="50%" stop-color="${CREAM}" stop-opacity="${beam}"/>
-        <stop offset="100%" stop-color="${CORAL}" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    <g opacity="${a}" transform="translate(${-40 * (1 - a)},0)">
-      <rect x="60" y="180" width="380" height="320" rx="10" fill="rgba(243,239,227,0.08)" stroke="${CREAM}" stroke-width="3"/>
-      <text x="250" y="250" text-anchor="middle" fill="${CORAL}" font-family="${FONT}" font-size="28" letter-spacing="3">POSTULATE 1</text>
-      <text x="250" y="330" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="40" font-weight="700">PHYSICS</text>
-      <text x="250" y="390" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="40" font-weight="700">SAME</text>
-      <text x="250" y="450" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="26">every steady frame</text>
-      <image href="${K('game-icons/PNG/White/2x/star.png')}" x="214" y="480" width="72" height="72" opacity="0.9"/>
-    </g>
-    <g opacity="${b}" transform="translate(${40 * (1 - b)},0)">
-      <rect x="512" y="180" width="380" height="320" rx="10" fill="rgba(243,239,227,0.08)" stroke="${CREAM}" stroke-width="3"/>
-      <text x="702" y="250" text-anchor="middle" fill="${CORAL}" font-family="${FONT}" font-size="28" letter-spacing="3">POSTULATE 2</text>
-      <text x="702" y="330" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="40" font-weight="700">LIGHT = C</text>
-      <text x="702" y="390" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="32" font-weight="700">ALWAYS</text>
-      <text x="702" y="450" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="26">for every observer</text>
-    </g>
-    <rect x="80" y="620" width="792" height="14" rx="7" fill="url(#beam)" opacity="${b * (twoCue ? 1 : 0.65)}"/>
-    <circle cx="${80 + ((localT * 180) % 792)}" cy="627" r="10" fill="${CREAM}" opacity="${b}"/>
-    <text x="476" y="720" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="32"
-      opacity="${easeOut(clamp01((localT - 2.5) / 0.4))}">c is the same for everyone</text>
-  `)
-}
-
-function diagramDilation(localT) {
-  const fade = easeOut(clamp01(localT / 0.45))
-  const bounce = (localT * 1.6) % 2
-  const photonY = bounce < 1 ? 220 + bounce * 280 : 500 - (bounce - 1) * 280
-  const shipX = 520 + Math.min(localT * 28, 180)
-  return svgWrap(`
+    ${defs()}
     <g opacity="${fade}">
-      <!-- light clock -->
-      <rect x="120" y="160" width="200" height="400" rx="8" fill="none" stroke="${CREAM}" stroke-width="3"/>
-      <line x1="140" y1="200" x2="300" y2="200" stroke="${MUTE}" stroke-width="4"/>
-      <line x1="140" y1="480" x2="300" y2="480" stroke="${MUTE}" stroke-width="4"/>
-      <circle cx="220" cy="${photonY}" r="14" fill="${CORAL}"/>
-      <text x="220" y="140" text-anchor="middle" fill="${CORAL}" font-family="${FONT}" font-size="28">LIGHT CLOCK</text>
-
-      <!-- moving ship -->
-      <g transform="translate(${shipX},280)">
-        <path d="M0 40 L160 0 L160 120 L0 80 Z" fill="rgba(243,239,227,0.12)" stroke="${CREAM}" stroke-width="3"/>
-        <circle cx="40" cy="60" r="18" fill="${MUTE}"/>
-        <text x="80" y="160" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="26">SHIP</text>
+      <text x="430" y="90" text-anchor="middle" fill="${MUTE}" font-family="${FONT_MONO}" font-size="26" letter-spacing="4">BIRTHDAY PARADOX</text>
+      <g transform="translate(430,340) scale(${numScale}) translate(-430,-340)">
+        <text x="430" y="380" text-anchor="middle" fill="${INK}" font-family="${FONT_DISP}" font-size="280" font-weight="700" filter="url(#pop)">23</text>
       </g>
-
-      <image href="${K('game-icons/PNG/White/2x/warning.png')}" x="400" y="80" width="64" height="64" opacity="0.85"/>
-      <text x="476" y="700" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="48" font-weight="700"
-        opacity="${easeOut(clamp01((localT - 1.5) / 0.5))}">Δt = γ Δt₀</text>
-      <text x="476" y="770" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="28"
-        opacity="${easeOut(clamp01((localT - 2.2) / 0.4))}">moving clocks tick slower</text>
+      <g opacity="${crowd}">
+        ${crowdDots(23, 430, 620, 280, localT)}
+      </g>
+      <g opacity="${pctIn}" transform="translate(430,820) scale(${pulse}) translate(-430,-820)">
+        <rect x="200" y="760" width="460" height="140" rx="24" fill="${CYAN}" filter="url(#pop)"/>
+        <text x="430" y="855" text-anchor="middle" fill="${WHITE}" font-family="${FONT_DISP}" font-size="72" font-weight="700">~50%</text>
+        <image href="${K('game-icons/PNG/Black/2x/star.png')}" x="250" y="790" width="48" height="48" opacity="0.85"/>
+        <image href="${K('game-icons/PNG/Black/2x/star.png')}" x="562" y="790" width="48" height="48" opacity="0.85"/>
+      </g>
+      <image href="${K('shape-characters/PNG/Default/tile_exclamation.png')}"
+        x="70" y="160" width="100" height="100" opacity="${easeOut(clamp01((localT - 0.15) / 0.3))}"/>
     </g>
   `)
 }
 
-function diagramLength(localT) {
-  const fade = easeOut(clamp01(localT / 0.4))
-  const shrink = 1 - 0.35 * easeOut(clamp01((localT - 0.8) / 1.2))
-  const w = 520 * shrink
+function diagramGut(localT) {
+  const fade = easeOut(clamp01(localT / 0.35))
+  const slide = easeOut(clamp01((localT - 0.2) / 0.5))
+  const cross = easeOut(clamp01((localT - 2.2) / 0.4))
+  const note = easeOut(clamp01((localT - 3.5) / 0.45))
   return svgWrap(`
+    ${defs()}
     <g opacity="${fade}">
-      <text x="476" y="140" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="28">PROPER LENGTH L₀</text>
-      <rect x="216" y="180" width="520" height="70" rx="8" fill="rgba(243,239,227,0.1)" stroke="${MUTE}" stroke-width="2" stroke-dasharray="10 8"/>
-      <text x="476" y="225" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="32">L₀</text>
-
-      <image href="${K('game-icons/PNG/White/2x/arrowRight.png')}" x="476" y="345" width="90" height="90" opacity="0.7"
-        transform="rotate(90 476 345)"/>
-
-      <text x="476" y="440" text-anchor="middle" fill="${CORAL}" font-family="${FONT}" font-size="28">CONTRACTED L</text>
-      <g transform="translate(${476 - w / 2}, 480)">
-        <path d="M0 50 L${w * 0.12} 10 L${w * 0.88} 10 L${w} 50 L${w * 0.88} 90 L${w * 0.12} 90 Z"
-          fill="rgba(224,122,95,0.25)" stroke="${CREAM}" stroke-width="3"/>
-        <circle cx="${w * 0.22}" cy="50" r="16" fill="${CREAM}" opacity="0.5"/>
-        <circle cx="${w * 0.78}" cy="50" r="16" fill="${CREAM}" opacity="0.5"/>
+      <text x="430" y="100" text-anchor="middle" fill="${MUTE}" font-family="${FONT_MONO}" font-size="26" letter-spacing="3">YOUR INTUITION</text>
+      <g transform="translate(0, ${(1 - slide) * 40})">
+        <rect x="120" y="180" width="620" height="320" rx="28" fill="${WHITE}" stroke="${INK}" stroke-width="4" filter="url(#soft)"/>
+        <text x="430" y="290" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="32">½ of 365 days ≈</text>
+        <text x="430" y="420" text-anchor="middle" fill="${INK}" font-family="${FONT_DISP}" font-size="160" font-weight="700">183</text>
       </g>
-      <text x="476" y="640" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="48" font-weight="700"
-        opacity="${easeOut(clamp01((localT - 1.5) / 0.4))}">L = L₀ / γ</text>
-      <text x="476" y="720" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="28"
-        opacity="${easeOut(clamp01((localT - 2.2) / 0.4))}">shrink along the motion</text>
+      <g opacity="${cross}" transform="translate(430,340) scale(${0.7 + 0.3 * cross}) translate(-430,-340)">
+        <image href="${K('game-icons/PNG/Black/2x/cross.png')}" x="310" y="220" width="240" height="240"/>
+      </g>
+      <g opacity="${note}">
+        <image href="${K('game-icons/PNG/Black/2x/question.png')}" x="120" y="560" width="72" height="72"/>
+        <rect x="210" y="560" width="520" height="200" rx="20" fill="${INK}"/>
+        <text x="470" y="640" text-anchor="middle" fill="${WHITE}" font-family="${FONT}" font-size="34" font-weight="700">Matching YOUR birthday</text>
+        <text x="470" y="700" text-anchor="middle" fill="${CYAN}" font-family="${FONT_MONO}" font-size="30">≠ any two people matching</text>
+      </g>
     </g>
   `)
 }
 
-function diagramEmc2(localT) {
-  const fade = easeOut(clamp01(localT / 0.5))
-  const scale = 0.7 + 0.3 * easeOut(clamp01(localT / 0.8))
-  const arrow = easeOut(clamp01((localT - 0.9) / 0.5))
-  return svgWrap(`
-    <g opacity="${fade}" transform="translate(476,380) scale(${scale}) translate(-476,-380)">
-      <text x="476" y="300" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="120" font-weight="700">E = mc²</text>
-      <g opacity="${arrow}">
-        <text x="220" y="480" text-anchor="middle" fill="${CORAL}" font-family="${FONT}" font-size="36">MASS</text>
-        <image href="${K('game-icons/PNG/White/2x/arrowRight.png')}" x="310" y="440" width="80" height="80"/>
-        <text x="520" y="480" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="36">ENERGY</text>
-        <image href="${K('game-icons/PNG/White/2x/arrowRight.png')}" x="620" y="440" width="80" height="80"/>
-        <text x="780" y="480" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="36">c²</text>
+function diagramPairs(localT) {
+  const fade = easeOut(clamp01(localT / 0.35))
+  const phase2 = localT > 2.4
+  const webGrow = easeInOut(clamp01((localT - 2.6) / 1.4))
+  const count = Math.floor(253 * easeOut(clamp01((localT - 3.2) / 2.2)))
+  const hubPulse = 1 + 0.04 * Math.sin(localT * 5)
+
+  // fixed birthday (wrong model)
+  const fixed = `
+    <g opacity="${phase2 ? 0.25 : 1}">
+      <text x="430" y="100" text-anchor="middle" fill="${MUTE}" font-family="${FONT_MONO}" font-size="24" letter-spacing="2">ONE FIXED BIRTHDAY</text>
+      <circle cx="430" cy="320" r="54" fill="${CYAN}"/>
+      <text x="430" y="332" text-anchor="middle" fill="${WHITE}" font-family="${FONT_DISP}" font-size="28" font-weight="700">YOU</text>
+      ${[0, 1, 2, 3, 4, 5, 6, 7]
+        .map((i) => {
+          const a = (i / 8) * Math.PI * 2 - Math.PI / 2
+          const x = 430 + Math.cos(a) * 180
+          const y = 320 + Math.sin(a) * 140
+          const on = easeOut(clamp01((localT - 0.3 - i * 0.08) / 0.25))
+          return `<line x1="430" y1="320" x2="${x}" y2="${y}" stroke="${MUTE}" stroke-width="3" opacity="${0.35 * on}"/>
+            <circle cx="${x}" cy="${y}" r="22" fill="${INK}" opacity="${on}"/>`
+        })
+        .join('')}
+      <text x="430" y="560" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="28">compares against one date</text>
+    </g>
+  `
+
+  // pair web
+  const nodes = []
+  const N = 12
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2 - Math.PI / 2
+    nodes.push({ x: 430 + Math.cos(a) * 220, y: 380 + Math.sin(a) * 200 })
+  }
+  const edges = []
+  for (let i = 0; i < N; i++) {
+    for (let j = i + 1; j < N; j++) {
+      edges.push([i, j])
+    }
+  }
+  const edgeCount = Math.floor(edges.length * webGrow)
+  const lines = edges
+    .slice(0, edgeCount)
+    .map(([i, j]) => {
+      const a = nodes[i]
+      const b = nodes[j]
+      return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${CYAN}" stroke-width="2.5" opacity="0.55"/>`
+    })
+    .join('')
+
+  const pairWeb = `
+    <g opacity="${phase2 ? 1 : 0}">
+      <text x="430" y="100" text-anchor="middle" fill="${MUTE}" font-family="${FONT_MONO}" font-size="24" letter-spacing="2">EVERY PAIR</text>
+      ${lines}
+      ${nodes
+        .map((n, i) => {
+          const on = easeOut(clamp01((localT - 2.5 - i * 0.05) / 0.25))
+          return `<circle cx="${n.x}" cy="${n.y}" r="20" fill="${INK}" opacity="${on}"/>`
+        })
+        .join('')}
+      <g transform="translate(430,380) scale(${hubPulse}) translate(-430,-380)">
+        <circle cx="430" cy="380" r="8" fill="${CYAN}"/>
       </g>
-      <text x="476" y="620" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="32"
-        opacity="${easeOut(clamp01((localT - 1.5) / 0.4))}">rest energy E₀ = mc²</text>
+      <g opacity="${easeOut(clamp01((localT - 3.0) / 0.4))}">
+        <rect x="180" y="720" width="500" height="160" rx="24" fill="${INK}" filter="url(#pop)"/>
+        <text x="430" y="790" text-anchor="middle" fill="${CYAN}" font-family="${FONT_MONO}" font-size="28">23 PEOPLE →</text>
+        <text x="430" y="860" text-anchor="middle" fill="${WHITE}" font-family="${FONT_DISP}" font-size="64" font-weight="700">${count} pairs</text>
+      </g>
+    </g>
+  `
+
+  return svgWrap(`${defs()}${fixed}${pairWeb}`)
+}
+
+function diagramClimb(localT) {
+  const fade = easeOut(clamp01(localT / 0.3))
+  const rows = [
+    { n: 10, p: 0.117, label: '~12%', t: 1.2 },
+    { n: 23, p: 0.507, label: '~50%', t: 3.4 },
+    { n: 50, p: 0.97, label: '~97%', t: 5.6 },
+  ]
+  const maxW = 520
+  const arrowOn = easeOut(clamp01((localT - 0.4) / 0.35))
+
+  const bars = rows
+    .map((row, i) => {
+      const y = 220 + i * 220
+      const grow = easeOut(clamp01((localT - row.t) / 0.7))
+      const w = maxW * row.p * grow
+      const highlight = row.n === 23
+      return `
+        <text x="90" y="${y + 48}" fill="${INK}" font-family="${FONT_DISP}" font-size="48" font-weight="700">${row.n}</text>
+        <text x="90" y="${y + 88}" fill="${MUTE}" font-family="${FONT_MONO}" font-size="22">people</text>
+        <rect x="220" y="${y + 20}" width="${maxW}" height="64" rx="16" fill="rgba(11,31,42,0.08)"/>
+        <rect x="220" y="${y + 20}" width="${w}" height="64" rx="16" fill="${highlight ? CYAN : INK}" filter="url(#soft)"/>
+        <text x="${Math.min(220 + w + 16, 760)}" y="${y + 64}" fill="${highlight ? CYAN : INK}" font-family="${FONT_DISP}" font-size="40" font-weight="700" opacity="${grow}">${row.label}</text>
+      `
+    })
+    .join('')
+
+  return svgWrap(`
+    ${defs()}
+    <g opacity="${fade}">
+      <text x="430" y="100" text-anchor="middle" fill="${MUTE}" font-family="${FONT_MONO}" font-size="26" letter-spacing="3">ODDS CLIMB</text>
+      <g opacity="${arrowOn}">
+        <image href="${K('game-icons/PNG/Black/2x/arrowRight.png')}" x="720" y="80" width="56" height="56"/>
+      </g>
+      ${bars}
+      <text x="430" y="980" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="28" opacity="${easeOut(clamp01((localT - 6.5) / 0.4))}">
+        more people → pairs explode → collisions soar
+      </text>
     </g>
   `)
 }
 
 function diagramCloser(localT) {
-  const fade = easeOut(clamp01(localT / 0.4))
-  const stamp = easeOut(clamp01((localT - 0.3) / 0.45))
-  const bounce = 1 + 0.04 * Math.sin(localT * 6)
+  const fade = easeOut(clamp01(localT / 0.3))
+  const slam = easeOut(clamp01((localT - 0.35) / 0.4))
+  const bounce = 1 + 0.03 * Math.sin(localT * 6) * slam
   return svgWrap(`
-    <g opacity="${fade}">
-      <g transform="translate(476,340) scale(${0.85 + 0.15 * stamp}) translate(-476,-340)">
-        <rect x="196" y="200" width="560" height="280" rx="16" fill="rgba(243,239,227,0.1)" stroke="${CREAM}" stroke-width="4"/>
-        <text x="476" y="300" text-anchor="middle" fill="${CORAL}" font-family="${FONT}" font-size="36" letter-spacing="4">NOT ABSOLUTE</text>
-        <text x="476" y="390" text-anchor="middle" fill="${CREAM}" font-family="${FONT}" font-size="48" font-weight="700">SPACE &amp; TIME</text>
-        <image href="${K('game-icons/PNG/White/2x/checkmark.png')}" x="420" y="420" width="${90 * bounce}" height="${90 * bounce}"/>
-      </g>
-      <text x="476" y="620" text-anchor="middle" fill="${MUTE}" font-family="${FONT}" font-size="32"
-        opacity="${stamp}">special relativity</text>
+    ${defs()}
+    <g opacity="${fade}" transform="translate(430,420) scale(${0.88 + 0.12 * slam}) translate(-430,-420)">
+      <rect x="70" y="260" width="720" height="360" rx="28" fill="${INK}" filter="url(#pop)"/>
+      <text x="430" y="380" text-anchor="middle" fill="${CYAN}" font-family="${FONT_MONO}" font-size="28" letter-spacing="3">TAKEAWAY</text>
+      <text x="430" y="470" text-anchor="middle" fill="${WHITE}" font-family="${FONT_DISP}" font-size="52" font-weight="700">Pairs explode</text>
+      <text x="430" y="545" text-anchor="middle" fill="${WHITE}" font-family="${FONT_DISP}" font-size="52" font-weight="700">faster than you think.</text>
+    </g>
+    <g opacity="${slam}" transform="translate(430,780) scale(${bounce}) translate(-430,-780)">
+      <image href="${K('game-icons/PNG/Black/2x/checkmark.png')}" x="350" y="720" width="80" height="80"/>
+      <image href="${K('game-icons/PNG/Black/2x/exclamation.png')}" x="460" y="720" width="80" height="80"/>
     </g>
   `)
 }
 
 const DIAGRAMS = {
   hook: diagramHook,
-  postulates: diagramPostulates,
-  dilation: diagramDilation,
-  length: diagramLength,
-  emc2: diagramEmc2,
+  gut: diagramGut,
+  pairs: diagramPairs,
+  climb: diagramClimb,
   closer: diagramCloser,
 }
+
+const ANIMATED = new Set(['hook', 'gut', 'pairs', 'climb', 'closer'])
 
 let lastDiagram = ''
 let lastCaption = ''
 let lastCallout = ''
 let lastHand = ''
-let lastTick = -1
+let lastShowActor = null
 
 function applyChrome(beat, t) {
   if (beat.html !== lastCaption) {
@@ -282,20 +348,28 @@ function applyChrome(beat, t) {
   if (beat.callout !== lastCallout) {
     calloutText.textContent = beat.callout
     lastCallout = beat.callout
+    callout.style.transform = 'scale(1.08)'
+    requestAnimationFrame(() => {
+      callout.style.transition = 'transform 0.22s ease-out'
+      callout.style.transform = 'scale(1)'
+    })
   }
   callout.style.opacity = '1'
+  progressEl.style.setProperty('--p', String(beat.progress ?? t / DURATION))
   if (beat.hand !== lastHand) {
     hand.src = HAND_SRC[beat.hand] || HAND_SRC.point
     lastHand = beat.hand
   }
-  if (beat.tick !== lastTick) {
-    ticks.forEach((el, i) => el.classList.toggle('on', i === beat.tick))
-    lastTick = beat.tick
+  if (beat.showActor !== lastShowActor) {
+    actor.classList.toggle('hidden', !beat.showActor)
+    lastShowActor = beat.showActor
   }
-  const lean = 1 + 0.015 * Math.sin(t * 2.2)
-  const bob = Math.sin(t * 1.8) * 4
-  actor.style.transform = `scale(${lean}) translateY(${bob}px)`
-  hand.style.transform = `rotate(${Math.sin(t * 3) * 6}deg)`
+  if (beat.showActor) {
+    const lean = 1 + 0.015 * Math.sin(t * 2.2)
+    const bob = Math.sin(t * 1.8) * 4
+    actor.style.transform = `scale(${lean}) translateY(${bob}px)`
+    hand.style.transform = `rotate(${Math.sin(t * 3) * 6}deg)`
+  }
 }
 
 function frameAt(t) {
@@ -303,12 +377,10 @@ function frameAt(t) {
   const localT = t - beat.t0
   applyChrome(beat, t)
   const key = `${beat.diagram}:${beat.t0}`
-  if (key !== lastDiagram || beat.diagram === 'dilation' || beat.diagram === 'postulates' || beat.diagram === 'length') {
+  if (key !== lastDiagram || ANIMATED.has(beat.diagram)) {
     const draw = DIAGRAMS[beat.diagram]
     if (draw) diagramEl.innerHTML = draw(localT)
     lastDiagram = key
-  } else if (DIAGRAMS[beat.diagram]) {
-    diagramEl.innerHTML = DIAGRAMS[beat.diagram](localT)
   }
   return { t, beat: beat.diagram }
 }

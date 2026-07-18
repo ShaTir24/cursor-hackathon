@@ -18,7 +18,10 @@ import { Public } from '../auth/jwt-auth.guard';
 import { ApiKeyGuard } from './api-key.guard';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { VideoCreationService } from './video-creation.service';
-import { resolveWorkspaceOutput } from './workspace.util';
+import {
+  listUserWorkspaceVideos,
+  resolveWorkspaceOutput,
+} from './workspace.util';
 
 @Controller('video-creation')
 export class VideoCreationController {
@@ -30,6 +33,22 @@ export class VideoCreationController {
   @Sse()
   create(@Body() dto: CreateVideoDto): Observable<MessageEvent> {
     return this.videoCreation.create(dto);
+  }
+
+  /**
+   * List playable reels for a workspace owner (numbered folders under
+   * video-workspaces/<username> that contain an MP4), newest first.
+   */
+  @Public()
+  @Get('workspaces/:username')
+  listWorkspaces(@Param('username') username: string) {
+    const videos = listUserWorkspaceVideos(username).map((v) => ({
+      index: v.index,
+      mtimeMs: v.mtimeMs,
+      size: v.size,
+      url: `/api/v1/video-creation/output/${encodeURIComponent(username)}/${encodeURIComponent(v.index)}`,
+    }));
+    return { username, videos };
   }
 
   /**

@@ -1,32 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import { createVideo } from "@/lib/api";
-import { listRecent, pushRecent, type RecentVideo } from "@/lib/recent-videos";
+import { pushRecent } from "@/lib/recent-videos";
 import type { Profile } from "@/lib/types";
 import { CreateWithAI } from "@/components/home/create-with-ai";
-import { EduReelsLogo } from "@/components/brand/edu-reels-logo";
+import { RecentWorkspaceVideos } from "@/components/home/recent-workspace-videos";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemTitle,
-} from "@/components/ui/item";
 import { useEntranceMotion } from "@/hooks/use-entrance-motion";
 
 type Props = {
@@ -37,12 +21,7 @@ export function TeacherHome({ profile }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [recent, setRecent] = useState<RecentVideo[]>([]);
   const scope = useEntranceMotion("[data-motion]");
-
-  useEffect(() => {
-    setRecent(listRecent(profile.userId));
-  }, [profile.userId]);
 
   async function onGenerate() {
     setLoading(true);
@@ -149,54 +128,11 @@ export function TeacherHome({ profile }: Props) {
         </div>
       </section>
 
-      <section data-motion className="space-y-3">
-        <h2 className="text-sm font-semibold">Recent</h2>
-        {recent.length === 0 ? (
-          <Empty className="border border-dashed border-border bg-card/60">
-            <EmptyHeader>
-              <EmptyMedia>
-                <EduReelsLogo size="sm" withWordmark={false} />
-              </EmptyMedia>
-              <EmptyTitle>No demos yet</EmptyTitle>
-              <EmptyDescription>
-                Generate your first class demo reel and lesson pack.
-              </EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent />
-          </Empty>
-        ) : (
-          <ItemGroup className="gap-2">
-            {recent.map((v) => {
-              const q = new URLSearchParams();
-              if (v.hlsUrl) q.set("hlsUrl", v.hlsUrl);
-              if (v.lessonPackId) q.set("lessonPackId", v.lessonPackId);
-              const qs = q.toString();
-              return (
-                <Item
-                  key={v.id}
-                  variant="outline"
-                  size="sm"
-                  render={
-                    <Link
-                      href={`/player/${v.id}${qs ? `?${qs}` : ""}`}
-                    />
-                  }
-                >
-                  <ItemContent>
-                    <ItemTitle>
-                      {v.title ?? `Demo ${v.id.slice(0, 8)}`}
-                    </ItemTitle>
-                    <ItemDescription>
-                      {new Date(v.at).toLocaleDateString()}
-                      {v.lessonPackId ? " · Lesson pack" : ""}
-                    </ItemDescription>
-                  </ItemContent>
-                </Item>
-              );
-            })}
-          </ItemGroup>
-        )}
-      </section>
+      <RecentWorkspaceVideos
+        username={profile.userId}
+        emptyTitle="No demos yet"
+        emptyDescription="Generate your first class demo reel and lesson pack."
+      />
     </div>
   );
 }

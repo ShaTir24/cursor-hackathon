@@ -119,3 +119,22 @@ export function getVideo(id: string) {
 export function getLessonPack(id: string) {
   return api<LessonPack>(`/api/v1/lesson-packs/${id}`);
 }
+
+export type WorkspaceVideo = {
+  index: string;
+  mtimeMs: number;
+  size: number;
+  url: string;
+};
+
+/** List playable reels under video-workspaces/<username> (public endpoint). */
+export async function listWorkspaceVideos(username: string) {
+  const res = await fetch(
+    `${API_BASE}/api/v1/video-creation/workspaces/${encodeURIComponent(username)}`,
+  );
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`${res.status}: ${text}`);
+  }
+  return res.json() as Promise<{ username: string; videos: WorkspaceVideo[] }>;
+}

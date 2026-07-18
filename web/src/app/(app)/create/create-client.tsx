@@ -8,6 +8,7 @@ import {
   Brain,
   CircleCheck,
   CircleX,
+  Clock,
   Loader2,
   Sparkles,
   Square,
@@ -101,6 +102,15 @@ function contentText(content: unknown): string {
 function truncate(value: string, max = 160): string {
   const s = value.trim();
   return s.length > max ? `${s.slice(0, max - 1)}…` : s;
+}
+
+/** Format milliseconds as an elapsed timer, e.g. "0.0s", "12.3s", "1:04.2". */
+function formatElapsed(ms: number): string {
+  const totalSeconds = Math.max(0, ms) / 1000;
+  if (totalSeconds < 60) return `${totalSeconds.toFixed(1)}s`;
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds - minutes * 60;
+  return `${minutes}:${seconds.toFixed(1).padStart(4, "0")}`;
 }
 
 /** First string-valued key found on an object, collapsed to a single line. */
@@ -280,6 +290,8 @@ export function CreateClient() {
   const [prompt, setPrompt] = useState<string>("");
   const [summary, setSummary] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const startTimeRef = useRef<number | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -503,6 +515,8 @@ export function CreateClient() {
 
   const run = useCallback(
     async (job: JobInput) => {
+      startTimeRef.current = performance.now();
+      setElapsedMs(0);
       setPhase("running");
       const controller = new AbortController();
       abortRef.current = controller;
@@ -622,6 +636,25 @@ export function CreateClient() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [lines]);
 
+  // Live elapsed-time counter: ticks every 100ms while running, then freezes
+  // on the final elapsed value once the job completes, errors, or is stopped.
+  useEffect(() => {
+    if (phase !== "running") {
+      if (startTimeRef.current != null) {
+        setElapsedMs(performance.now() - startTimeRef.current);
+      }
+      return;
+    }
+    const tick = () => {
+      if (startTimeRef.current != null) {
+        setElapsedMs(performance.now() - startTimeRef.current);
+      }
+    };
+    tick();
+    const interval = window.setInterval(tick, 100);
+    return () => window.clearInterval(interval);
+  }, [phase]);
+
   function stop() {
     abortRef.current?.abort();
   }
@@ -659,7 +692,23 @@ export function CreateClient() {
             Cursor agent stream
           </h1>
         </div>
-        {statusBadge}
+        <div className="flex flex-col items-end gap-1.5">
+          {statusBadge}
+          <div
+            data-testid="elapsed-timer"
+            className="flex items-center gap-1.5 font-mono text-sm tabular-nums text-muted-foreground"
+            title={
+              phase === "running"
+                ? "Time since video creation started"
+                : "Total time taken"
+            }
+          >
+            <Clock className="size-3.5" aria-hidden />
+            <span className={phase === "running" ? "text-foreground" : undefined}>
+              {formatElapsed(elapsedMs)}
+            </span>
+          </div>
+        </div>
       </div>
 
       {prompt && (
@@ -679,7 +728,7 @@ export function CreateClient() {
               Download
             </Button>
           </div>
-          <div className="flex justify-center overflow-hidden rounded-lg bg-black">
+          <div className="flex justify-center">
             <video
               key={videoUrl}
               data-testid="output-video"
@@ -687,7 +736,7 @@ export function CreateClient() {
               controls
               autoPlay
               playsInline
-              className="max-h-[70vh] w-auto"
+              className="block aspect-[9/16] h-[70vh] max-h-[640px] w-auto rounded-lg bg-black object-contain shadow-lg"
             />
           </div>
         </div>

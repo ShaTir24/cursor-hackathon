@@ -126,17 +126,20 @@ Verified: `cast ok: 22`. No Web (Exa) imagery — Marvel art forbidden; CAP is a
 ## Audio artifacts
 - VO: outputs/audio/cap_theorem_marvel_vo.mp3
 - TTS alignment: outputs/audio/cap_theorem_marvel_tts_alignment.json
-- Forced alignment: outputs/audio/cap_theorem_marvel_forced_alignment.json (loss ≈ 0.29)
+- Forced alignment: outputs/audio/cap_theorem_marvel_forced_alignment.json (loss ≈ 0.28)
 - Script: outputs/audio/cap_theorem_marvel_script.txt
-- DURATION: 49.979s (last word end + 0.4s)
+- DURATION: 50.66s (last word end 50.259 + 0.4s)
 
 ## Audio-locked beat table
 
 | # | t0–t1 | Caption | Diagram | Cue word @ time | Motion cue |
 |---|-------|---------|---------|-----------------|------------|
-| 1 | 0.099–3.559 | WAIT — CAP… Avengers team? | hook | Wait @ 0.099 | badge pulse |
-| 2 | 3.559–10.239 | VISION · C — one source of truth | vision | Vision @ 3.559 | sync @ truth 6.659 |
-| 3 | 10.239–19.779 | SPIDER-MAN · A — always answering | spider | Spider-Man @ 10.239 | pulse @ always-on 14.239 |
-| 4 | 19.779–28.559 | STRANGE · P — holds the split | strange | Doctor @ 19.779 | split @ splits 23.439 |
-| 5 | 28.559–46.039 | CATCH — bank CP / likes AP | catch | Here's @ 28.559 | Bank @ 35.139 · Social @ 38.879 |
-| 6 | 46.039–49.979 | CAP — assemble the tradeoff | closer | CAP @ 46.039 | Assemble @ 47.360 |
+| 1 | 0.119–4.000 | WAIT — CAP… Avengers team? | hook | Wait @ 0.119 | badge pulse |
+| 2 | 4.000–11.119 | VISION · C — one source of truth | vision | Vision @ 4.000 | sync @ truth 7.019 |
+| 3 | 11.119–20.239 | SPIDER-MAN · A — always answering | spider | Spider-Man @ 11.119 | pulse @ always-on 14.679 |
+| 4 | 20.239–29.859 | STRANGE · P — holds the split | strange | Doctor @ 20.239 | split @ splits 24.279 |
+| 5 | 29.859–46.619 | CATCH — bank CP / likes AP | catch | Here's @ 29.859 | Bank @ 35.959 · Social @ 39.659 |
+| 6 | 46.619–50.659 | CAP — assemble the tradeoff | closer | CAP @ 46.619 | Assemble @ 47.840 |
+
+DURATION: 50.659s (last word end 50.259 + 0.4s)
+

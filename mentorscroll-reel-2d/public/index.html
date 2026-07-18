@@ -3,16 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>MentorScroll 2D — Special Relativity</title>
+    <title>MentorScroll 2D — Birthday Paradox</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,600;9..40,700;9..40,800&family=Space+Grotesk:wght@600;700&family=IBM+Plex+Mono:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div id="stage">
       <div id="bg"></div>
 
-      <header id="hud">
-        <span id="hud-title">SPECIAL RELATIVITY</span>
-      </header>
+      <div id="progress" aria-hidden="true"><i></i></div>
 
       <div id="callout"><span id="callout-text"></span></div>
 
@@ -22,19 +26,10 @@
         <div id="caption-inner"></div>
       </div>
 
-      <div id="actor">
+      <div id="actor" class="hidden">
         <img id="body" alt="" />
         <img id="face" alt="" />
         <img id="hand" alt="" />
-      </div>
-
-      <div id="progress" aria-hidden="true">
-        <span data-i="0"></span>
-        <span data-i="1"></span>
-        <span data-i="2"></span>
-        <span data-i="3"></span>
-        <span data-i="4"></span>
-        <span data-i="5"></span>
       </div>
     </div>
     <script type="module" src="../src/scene.js"></script>
