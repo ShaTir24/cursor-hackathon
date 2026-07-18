@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, Film } from "lucide-react";
+import { Download, ExternalLink, Film } from "lucide-react";
 import { API_BASE, listWorkspaceVideos, type WorkspaceVideo } from "@/lib/api";
 import { EduReelsLogo } from "@/components/brand/edu-reels-logo";
 import { Button } from "@/components/ui/button";
@@ -122,7 +122,13 @@ export function RecentWorkspaceVideos({
                   />
                 </div>
                 <div className="flex items-center justify-between gap-2 px-2.5 py-2">
-                  <div className="min-w-0">
+                  <a
+                    href={src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="min-w-0 rounded-sm outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
+                    title="Open preview in new tab"
+                  >
                     <p className="flex items-center gap-1 truncate text-xs font-medium">
                       <Film className="size-3 shrink-0 text-muted-foreground" aria-hidden />
                       Reel #{v.index}
@@ -130,21 +136,38 @@ export function RecentWorkspaceVideos({
                     <p className="truncate text-[11px] text-muted-foreground">
                       {new Date(v.mtimeMs).toLocaleString()} · {formatBytes(v.size)}
                     </p>
+                  </a>
+                  <div className="flex shrink-0 items-center gap-0.5">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      render={
+                        <a
+                          href={src}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open preview of reel ${v.index} in new tab`}
+                          title="Open preview in new tab"
+                        />
+                      }
+                    >
+                      <ExternalLink className="size-3.5" aria-hidden />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      render={
+                        <a
+                          href={src}
+                          download={`reel-${v.index}.mp4`}
+                          aria-label={`Download reel ${v.index}`}
+                          title="Download"
+                        />
+                      }
+                    >
+                      <Download className="size-3.5" aria-hidden />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="shrink-0"
-                    render={
-                      <a
-                        href={src}
-                        download={`reel-${v.index}.mp4`}
-                        aria-label={`Download reel ${v.index}`}
-                      />
-                    }
-                  >
-                    <Download className="size-3.5" aria-hidden />
-                  </Button>
                 </div>
               </li>
             );
