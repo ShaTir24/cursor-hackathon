@@ -1,0 +1,60 @@
+{
+  "characterSlug": "the-boss",
+  "characterId": "c9012369-6099-4f23-b1e8-e45cbdc23d74",
+  "characterFile": "mixamo/assets/the-boss/character.fbx",
+  "catalogRef": "mixamo/animation-catalog.json",
+  "availableCatalogCount": 150,
+  "downloadedCount": 7,
+  "downloaded": [
+    {
+      "file": "idle.fbx",
+      "mixamoName": "Happy Idle",
+      "path": "mixamo/assets/the-boss/animations/idle.fbx",
+      "flatCompat": "mixamo/assets/idle.fbx",
+      "bytes": 495888
+    },
+    {
+      "file": "talking.fbx",
+      "mixamoName": "Agreeing",
+      "path": "mixamo/assets/the-boss/animations/talking.fbx",
+      "flatCompat": "mixamo/assets/talking.fbx",
+      "bytes": 694960
+    },
+    {
+      "file": "pointing.fbx",
+      "mixamoName": "Pointing Gesture",
+      "path": "mixamo/assets/the-boss/animations/pointing.fbx",
+      "flatCompat": "mixamo/assets/pointing.fbx",
+      "bytes": 455040
+    },
+    {
+      "file": "thinking.fbx",
+      "mixamoName": "Thinking",
+      "path": "mixamo/assets/the-boss/animations/thinking.fbx",
+      "flatCompat": "mixamo/assets/thinking.fbx",
+      "bytes": 643616
+    },
+    {
+      "file": "celebrate.fbx",
+      "mixamoName": "Victory Idle",
+      "path": "mixamo/assets/the-boss/animations/celebrate.fbx",
+      "flatCompat": "mixamo/assets/celebrate.fbx",
+      "bytes": 480624
+    },
+    {
+      "file": "wave.fbx",
+      "mixamoName": "Standing Greeting",
+      "path": "mixamo/assets/the-boss/animations/wave.fbx",
+      "flatCompat": "mixamo/assets/wave.fbx",
+      "bytes": 719936
+    },
+    {
+      "file": "nervously-look-around.fbx",
+      "mixamoName": "Nervously Looking Around Left To Right -  Loop",
+      "path": "mixamo/assets/the-boss/animations/nervously-look-around.fbx",
+      "flatCompat": "mixamo/assets/nervously-look-around.fbx",
+      "bytes": 778992
+    }
+  ],
+  "howToUse": "Pick a name from animation-names.json / animation-catalog.json, then export FBX for this character via mixamo_anims_downloader. Only keep clips needed for a reel beat."
+}

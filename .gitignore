@@ -1,4 +1,5 @@
 *.env
+.env
 node_modules
 .DS_Store
 dist
@@ -7,3 +8,5 @@ coverage
 *.log
 app/.expo
 backend/dist
+outputs
+demo-outputs

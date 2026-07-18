@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MentorScroll — Newton's Laws</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #05070d;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+      }
+      #c {
+        display: block;
+        width: 1080px;
+        height: 1920px;
+      }
+      #hud {
+        position: absolute;
+        inset: 0;
+        width: 1080px;
+        height: 1920px;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      #brand {
+        position: absolute;
+        top: 72px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.55);
+        letter-spacing: 0.28em;
+        font-size: 28px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      #caption {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        bottom: 220px;
+        text-align: center;
+        color: #fff;
+        font-size: 54px;
+        font-weight: 800;
+        line-height: 1.25;
+        text-shadow: 0 4px 24px rgba(0, 0, 0, 0.75);
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+      }
+      #caption.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      #caption .law {
+        display: block;
+        color: #ffd166;
+        font-size: 34px;
+        letter-spacing: 0.18em;
+        margin-bottom: 16px;
+      }
+      #progress {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        bottom: 120px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      #progress > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #ffd166, #ef476f);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c" width="1080" height="1920"></canvas>
+    <div id="hud">
+      <div id="brand">MentorScroll</div>
+      <div id="caption"></div>
+      <div id="progress"><i></i></div>
+    </div>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/node_modules/three/build/three.module.js",
+          "three/addons/": "/node_modules/three/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="/src/scene.js"></script>
+  </body>
+</html>

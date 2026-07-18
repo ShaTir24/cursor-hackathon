@@ -1,0 +1,16 @@
+{
+  "name": "mentorscroll-reel-2d",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "download-kenney": "node ../kenney_downloader/downloadPacks.mjs",
+    "sync-assets": "node scripts/sync-assets.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "render": "node scripts/render.mjs",
+    "build-video": "npm run sync-assets && npm run render"
+  },
+  "dependencies": {
+    "playwright": "^1.54.1"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "mentorscroll-reel",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "download-anims": "node ../mixamo_anims_downloader/downloadAnimsNode.mjs",
+    "serve": "npx --yes serve . -l 5177 --no-clipboard",
+    "render": "node scripts/render.mjs",
+    "build-video": "npm run render"
+  },
+  "dependencies": {
+    "playwright": "^1.54.1",
+    "three": "^0.178.0"
+  }
+}
