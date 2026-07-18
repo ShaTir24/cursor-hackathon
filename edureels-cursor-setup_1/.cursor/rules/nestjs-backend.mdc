@@ -1,0 +1,33 @@
+---
+description: NestJS + Supabase backend standards for EduReels
+globs: ["backend/**/*.ts"]
+alwaysApply: false
+---
+
+# NestJS Backend Rules
+
+## Architecture
+- Module per domain: `auth`, `users`, `catalogue`, `videos`, `analytics`, `generation`.
+- Controller → Service → Repository. Controllers are thin: validation + delegation only.
+- DTOs with `class-validator` on every endpoint; global `ValidationPipe({whitelist: true})`.
+- Config via `@nestjs/config`; secrets only from `.env` (never committed). Required keys fail fast at boot.
+
+## Database (Supabase Postgres)
+- Access Postgres directly (TypeORM or Prisma — pick one, stay consistent) using the Supabase connection string. Supabase Auth may be used for JWT issuance; verify JWTs in a NestJS guard.
+- Migrations in `backend/migrations/`, one per feature, reversible.
+- Core tables: users, profiles, catalogue_topics, catalogue_interests, videos, video_scenes, watch_events, quiz_unlocks (future).
+- Analytics reads are SQL aggregates (peak hour = `date_trunc('hour')` group-by on watch_events); no in-memory aggregation of full tables.
+
+## Video generation pipeline
+- `generation` module owns: LLM-free script templating for MVP if no LLM key is available (structured scene templates per topic), ElevenLabs TTS, timeline assembly.
+- ElevenLabs: model `eleven_flash_v2_5` (cheapest credits, multilingual). EVERY call goes through `TtsService.getOrSynthesize(text, voice)` which checks the cache table + disk first. Fixtures in `fixtures/tts/` are used when `NODE_ENV=test|dev-offline`.
+- Generation is async: POST /videos returns `{id, status: 'processing'}`; client polls GET /videos/:id. No websockets for MVP.
+- Remotion rendering is OPTIONAL export path only; default delivery is timeline JSON + per-scene MP3 URLs (pseudo-player). Rendered files and audio stored on local disk/EC2 volume, served via static route — no S3.
+
+## API conventions
+- REST, plural nouns, versioned prefix `/api/v1`. Errors: standard shape `{statusCode, message, error}` via exception filters.
+- Auth guard on everything except /auth/*. User id always from JWT, never from request body.
+
+## Quality gates
+- Each service has at least one happy-path unit test (Jest). e2e via supertest for auth + videos.
+- No `console.log`; use Nest Logger.

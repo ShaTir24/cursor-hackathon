@@ -1,0 +1,30 @@
+---
+description: React Native (web-first) frontend standards for EduReels
+globs: ["app/**/*.tsx", "app/**/*.ts"]
+alwaysApply: false
+---
+
+# React Native Frontend Rules
+
+## Stack
+- Expo + React Native + TypeScript strict. Web is the primary target (react-native-web); iOS must still compile.
+- Navigation: expo-router (file-based). Styling: NativeWind. State: Zustand (light) + TanStack Query for server state. No Redux.
+
+## Platform safety
+- Never use `document`, `window`, `localStorage` directly. Platform-specific code goes in `Component.web.tsx` / `Component.native.tsx` pairs.
+- Video/audio playback: `expo-av` (works web+native). The pseudo-player advances scenes on the audio `didJustFinish` status, not on timers.
+
+## Structure
+- `app/(auth)/` sign-in, sign-up. `app/(tabs)/profile.tsx` is the default route.
+- Feature folders: `src/features/<name>/{components,hooks,api}.`
+- API layer: all HTTP in `src/api/`; components never call fetch directly. Mocks in `src/api/mocks/` mirror real client signatures 1:1 so integration is a one-line import swap.
+
+## UI standards
+- Every screen implements 4 states: loading / empty / error / success. Error states include a retry action.
+- Catalogue selections (topics, interests) are multi-select chip grids from a static catalogue constant — never free-text.
+- Analytics widgets (time spent, peak hours, most-watched topic) render from a single `/analytics/summary` response; no client-side aggregation of raw events.
+- Track watch time by posting heartbeat events every 10s of playback: `{videoId, topicId, secondsWatched}`.
+
+## Quality gates
+- `tsc --noEmit` must pass before any commit. No `any`, no `@ts-ignore` without a comment.
+- Components > 150 lines must be split. Hooks own logic; components own layout.
