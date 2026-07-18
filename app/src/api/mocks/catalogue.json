@@ -1,0 +1,78 @@
+{
+  "ageGroups": [
+    { "id": "ages_5_10", "label": "5–10 · Little explorers", "minAge": 5, "maxAge": 10 },
+    { "id": "ages_11_14", "label": "11–14 · Middle school energy", "minAge": 11, "maxAge": 14 },
+    { "id": "ages_15_18", "label": "15–18 · High school / GenZ", "minAge": 15, "maxAge": 18 },
+    { "id": "ages_19_24", "label": "19–24 · Campus & first jobs", "minAge": 19, "maxAge": 24 },
+    { "id": "ages_25_34", "label": "25–34 · Builders & side-quests", "minAge": 25, "maxAge": 34 },
+    { "id": "ages_35_45", "label": "35–45 · Pros & lifelong learners", "minAge": 35, "maxAge": 45 }
+  ],
+  "topics": [
+    { "id": "topic_science_tech", "domain": "Science & Technology", "label": "How things work" },
+    { "id": "topic_space_earth", "domain": "Science & Technology", "label": "Space, Earth & climate" },
+    { "id": "topic_coding_ai", "domain": "Science & Technology", "label": "Coding & AI basics" },
+    { "id": "topic_art_visual", "domain": "Art & Literature", "label": "Visual arts & design" },
+    { "id": "topic_stories", "domain": "Art & Literature", "label": "Stories & storytelling" },
+    { "id": "topic_music", "domain": "Art & Literature", "label": "Music & sound" },
+    { "id": "topic_history", "domain": "History & Culture", "label": "World history" },
+    { "id": "topic_cultures", "domain": "History & Culture", "label": "Cultures & traditions" },
+    { "id": "topic_math", "domain": "Math & Logic", "label": "Numbers that matter" },
+    { "id": "topic_puzzles", "domain": "Math & Logic", "label": "Puzzles & problem-solving" },
+    { "id": "topic_health_body", "domain": "Health & Wellness", "label": "Body & nutrition" },
+    { "id": "topic_mindfulness", "domain": "Health & Wellness", "label": "Mindfulness & habits" },
+    { "id": "topic_life_skills", "domain": "Life Skills / Career", "label": "Everyday life skills" },
+    { "id": "topic_money", "domain": "Life Skills / Career", "label": "Money & smart choices" },
+    { "id": "topic_careers", "domain": "Life Skills / Career", "label": "Careers & paths" },
+    { "id": "topic_environment", "domain": "Science & Technology", "label": "Nature & environment" }
+  ],
+  "themesByAgeGroup": {
+    "ages_5_10": [
+      { "id": "theme_pokemon", "label": "Pokémon adventures", "vibe": "Catch concepts like creatures" },
+      { "id": "theme_disney_fairy", "label": "Fairy-tale quests", "vibe": "Storybook heroes" },
+      { "id": "theme_dino_dig", "label": "Dino dig site", "vibe": "Excavate ideas" },
+      { "id": "theme_superhero_kids", "label": "Kid superheroes", "vibe": "Powers = skills" },
+      { "id": "theme_animal_friends", "label": "Animal friends", "vibe": "Talking critters" },
+      { "id": "theme_lego_build", "label": "Brick builders", "vibe": "Snap concepts together" }
+    ],
+    "ages_11_14": [
+      { "id": "theme_minecraft", "label": "Minecraft worlds", "vibe": "Craft & redstone" },
+      { "id": "theme_marvel_lore", "label": "Marvel / comic lore", "vibe": "Origin stories" },
+      { "id": "theme_sports_arena", "label": "Sports arena", "vibe": "Highlight-reel science" },
+      { "id": "theme_yt_creator", "label": "YouTube creator desk", "vibe": "Explain-like-a-creator" },
+      { "id": "theme_anime_quest", "label": "Anime training arc", "vibe": "Level-up arcs" },
+      { "id": "theme_escape_room", "label": "Escape-room puzzles", "vibe": "Clues unlock concepts" }
+    ],
+    "ages_15_18": [
+      { "id": "theme_genz_fyp", "label": "FYP / short-form energy", "vibe": "Hook-first explainers" },
+      { "id": "theme_kpop_stage", "label": "K-pop stagecraft", "vibe": "Comeback eras for topics" },
+      { "id": "theme_gaming_ranked", "label": "Ranked gaming", "vibe": "Elo climbs" },
+      { "id": "theme_startup_garage", "label": "Teen startup garage", "vibe": "Pitch decks for concepts" },
+      { "id": "theme_streetwear_drop", "label": "Streetwear drop culture", "vibe": "Limited drops of insight" },
+      { "id": "theme_climate_activism", "label": "Climate activism HQ", "vibe": "Campaign briefings" }
+    ],
+    "ages_19_24": [
+      { "id": "theme_campus_cafe", "label": "Campus café debates", "vibe": "Peer-to-peer explainers" },
+      { "id": "theme_internship_irl", "label": "Internship IRL", "vibe": "First-job scenarios" },
+      { "id": "theme_creator_economy", "label": "Creator economy", "vibe": "Craft as career" },
+      { "id": "theme_festival_circuit", "label": "Festival / travel circuit", "vibe": "Culture mashups" },
+      { "id": "theme_indie_hack", "label": "Indie hacker build-in-public", "vibe": "Ship-fast metaphors" },
+      { "id": "theme_spotify_wrapped", "label": "Wrapped-style year review", "vibe": "Personal stats energy" }
+    ],
+    "ages_25_34": [
+      { "id": "theme_product_sprint", "label": "Product sprint room", "vibe": "Decision frameworks" },
+      { "id": "theme_side_hustle", "label": "Side-hustle lab", "vibe": "ROI of skills" },
+      { "id": "theme_wellness_club", "label": "Wellness club", "vibe": "Sustainable ambition" },
+      { "id": "theme_city_apartment", "label": "City-apartment life", "vibe": "Adulting scenarios" },
+      { "id": "theme_true_crime_doc", "label": "Docuseries deep-dive", "vibe": "Narrative investigation" },
+      { "id": "theme_boardgame_night", "label": "Board-game night", "vibe": "Strategy systems" }
+    ],
+    "ages_35_45": [
+      { "id": "theme_executive_brief", "label": "Executive brief", "vibe": "Signal-over-noise" },
+      { "id": "theme_family_table", "label": "Family dinner table", "vibe": "Explain-to-your-kid clarity" },
+      { "id": "theme_hobby_workshop", "label": "Weekend workshop", "vibe": "Craft metaphors" },
+      { "id": "theme_career_pivot", "label": "Career pivot studio", "vibe": "Second acts" },
+      { "id": "theme_local_history", "label": "Local history walk", "vibe": "Neighborhood lenses" },
+      { "id": "theme_podcast_longform", "label": "Longform podcast desk", "vibe": "Expert-guest energy" }
+    ]
+  }
+}
