@@ -2,9 +2,10 @@
 name: mentorscroll-2d
 description: >-
   Builds MentorScroll 2D educational reels (Kenney sprites + SVG diagrams) with
-  a director-grade shot list per beat, Kenney-only asset casting verified against
-  inventory, ElevenLabs voice selection, TTS with timestamps, forced alignment,
-  and Playwright+FFmpeg MP4. Use for 2D reels, flat illustrations, Kenney/SVG
+  a director-grade shot list per beat, a varied UI-kit recipe (so reels don't
+  reuse the same chrome), Kenney-only asset casting verified against inventory,
+  ElevenLabs voice selection, TTS with timestamps, forced alignment, and
+  Playwright+FFmpeg MP4. Use for 2D reels, flat illustrations, Kenney/SVG
   overlays, or synced narration/captions via ELEVENLABS_API_KEY.
 ---
 
@@ -14,9 +15,9 @@ description: >-
 
 Produces a 30–60s portrait (1080×1920) educational reel:
 
-1. **Plan** (required) — storyboard + **director shot list** + **asset cast** + voice + narration
+1. **Plan** (required) — storyboard + **UI recipe** + **director shot list** + **asset cast** + voice + narration
 2. **Audio** — ElevenLabs voices → TTS (+ timestamps) → forced alignment
-3. **Visuals** — Kenney CC0 sprites + SVG diagrams/callouts, staged per shot list
+3. **Visuals** — Kenney CC0 sprites + SVG diagrams/callouts, staged per shot list **and** the locked UI recipe
 4. **Render** — Playwright frames + FFmpeg → MP4/WebM, mux VO (+ optional music)
 
 **Auth:** load `ELEVENLABS_API_KEY` from project root `.env`. Header: `xi-api-key`.  
@@ -28,13 +29,16 @@ API details: [elevenlabs-audio.md](elevenlabs-audio.md)
 - Synced captions / narration / forced alignment for MentorScroll 2D
 - Router sends a 2D request here
 
-## Hard gates (all three, in order)
+## Hard gates (all four, in order)
 
-1. **Plan before code** — no edits to `mentorscroll-reel-2d/src/scene.js` and no render until a plan file exists and is LOCKED.
-2. **Shot list before audio** — every beat has a complete director shot list row (focal point, hierarchy, motion, cut/hold, negative space). No "TBD" cells.
-3. **Asset cast verified on disk** — every sprite in the cast table is a real path from `kenney/assets/**/inventory.json`, verified to exist before coding. **Never invent filenames.** If a wanted sprite doesn't exist, recast from inventory or draw it as SVG — do not guess a path.
+1. **Plan before code** — no edits to `mentorscroll-reel-2d/src/scene.js` (or `public/styles.css` / `public/index.html` chrome) and no render until a plan file exists and is LOCKED.
+2. **UI recipe before shot list** — every locked plan picks one complete **UI recipe** from the director menu below (stage + header + callout + caption + character seat + progress + palette). No "reuse last reel's chrome by default."
+3. **Shot list before audio** — every beat has a complete director shot list row (focal point, hierarchy, motion, cut/hold, negative space, **UI beat note**). No "TBD" cells.
+4. **Asset cast verified on disk** — every sprite in the cast table is a real path from `kenney/assets/**/inventory.json`, verified to exist before coding. **Never invent filenames.** If a wanted sprite doesn't exist, recast from inventory or draw it as SVG — do not guess a path.
 
 Save plan to: `mentorscroll-reel-2d/plans/{topic_slug}_{YYYYMMDD}.md`
+
+**Anti-sameness gate:** before locking, skim the 2–3 most recent files in `mentorscroll-reel-2d/plans/`. If the new recipe shares the same **header + callout + caption** combo as a recent plan, **recast the UI recipe** (change at least two of those three chrome pieces, or swap the stage family). Diagram topics can repeat; chrome must not.
 
 ---
 
@@ -48,15 +52,53 @@ The reel is a sequence of **shots**, not a slideshow of icons. For every beat, d
 | What's the reading order? | **Hierarchy** | 1 focal → 2 support → 3 caption. Max 3 layers. If an element isn't in the hierarchy, cut it. |
 | What moves, and why? | **Motion** | Focal point gets the meaningful motion (slide, grow, pulse). Support gets subtle idle motion. Never everything moving at once. |
 | Cut or hold? | **Cut/hold** | Hook cuts fast (≤4s). Concept beats hold long enough to read diagram + hear the line. Change something visible at every beat boundary (diagram swap, layout shift, palette accent). |
-| Where does the frame breathe? | **Negative space** | Keep ~25–35% of the frame quiet. Top third = stage/board, middle = focal diagram, lower third = caption. Don't stack icons into corners to fill space. |
+| Where does the frame breathe? | **Negative space** | Keep ~25–35% of the frame quiet. Don't stack icons into corners to fill space. Quiet zones follow the locked UI recipe (not always "top third empty"). |
+| Which chrome am I using? | **UI recipe** | Stage + header + callout + caption + character seat + progress — picked once per reel, varied vs recent plans. |
 
 ### Composition rules for 1080×1920
 
-- **Vertical thirds:** stage/context (top), focal diagram (middle), caption (lower safe area). Progress bar at the very bottom.
-- One **hero zone** per beat (~40% of frame height). The focal element lives there and nothing overlaps it.
+- One **hero zone** per beat (~35–45% of frame height). The focal element lives there and nothing overlaps it.
 - Sprites are **cast for meaning**, not decoration: an arrow shows a force, a trophy rewards mastery. If you can't say what a sprite *means* in the beat, cut it.
 - Palette: one background family + ONE accent color for focal/callouts. Support elements stay muted.
-- Beat-to-beat continuity: keep the stage and character anchored; change the focal diagram. The viewer should feel "same room, next idea".
+- Beat-to-beat continuity: keep the **locked stage + character seat** anchored; change the focal diagram (and callout label). The viewer should feel "same room, next idea" — unless a planned mid-reel layout beat deliberately shifts seats for emphasis (at most one such beat).
+- **Do not default every reel to** dark-arena scoreboard HUD + neon pill callout + bottom caption card + bottom-center character. That combo is one recipe among many — use it only when it fits *and* recent plans didn't.
+
+---
+
+## UI kit (director menu)
+
+Treat chrome like a kit of interchangeable parts. **Before** writing the shot list, lock one **UI recipe** by picking exactly one option from each row:
+
+| Slot | Pick one | Notes |
+|------|----------|-------|
+| **Stage / world** | `chalkboard` · `whiteboard-lab` · `dark-arena` · `notebook-paper` · `cork-sticky` · `broadcast-desk` · `poster-wall` | Sets bg, texture, and atmosphere. Must feel like a place, not a flat void. |
+| **Header chrome** | `scoreboard-hud` · `chalk-banner` · `minimal-eyebrow` · `tape-label` · `none` | Persistent top anchor. `none` = title lives in the diagram or caption only. |
+| **Callout / beat badge** | `neon-pill` · `stamp` · `chalk-underline` · `chapter-chip` · `corner-tab` · `none` | Short beat label ("LAW 1", "WAIT"). If `none`, the caption law-line carries the label. |
+| **Caption treatment** | `bottom-card` · `lower-third-bar` · `speech-bubble` · `typewriter-strip` · `diagram-footer` | Lower safe area still required for readability; treatment changes shape/placement. |
+| **Character seat** | `bottom-center` · `bottom-left-wing` · `bottom-right-wing` · `mid-side-peek` · `absent-on-diagram-beats` | Same seat across the reel (except optional one layout-shift beat). `absent-on-diagram-beats` hides the mascot when the diagram needs the full hero zone. |
+| **Progress** | `thin-bar` · `chapter-dots` · `tick-rail` · `none` | Always non-competing; never steals focal attention. |
+| **Palette family** | `ink-chalk` (deep green/cream) · `lab-cyan` (cool blue/white) · `arena-neon` (navy + one neon) · `warm-paper` (kraft + coral/ink) · `mono-poster` (near-black + single spot) | One family per reel. Avoid purple-gradient defaults. |
+
+### Recipe rules
+
+1. **Three brainstorm options = three different recipes.** Options may share a topic hook idea, but each option's stage/header/callout/caption combo must differ so the user (or auto-pick) is choosing a *look*, not just a script.
+2. **Name the recipe** in the plan (e.g. `notebook-paper / tape-label / stamp / speech-bubble / bottom-left-wing / chapter-dots / warm-paper`).
+3. **Implement the recipe in HTML/CSS**, not only in SVG diagrams. `public/index.html` + `public/styles.css` must reflect the locked chrome (header markup, caption shape, callout style, stage background). Do not leave the previous reel's arena HUD in place and only swap diagram SVGs.
+4. **Within-reel variety** still comes from diagram swaps + callout text + one meaningful motion event per beat — not from random chrome thrashing every cut.
+5. **Audience / theme fit:** if the user (or profile) implies an age/interest theme (gaming, classroom, lab, etc.), bias the recipe toward that world — but still pass the anti-sameness gate vs recent plans.
+6. **Forbidden lazy default:** copying the last plan's CSS/HTML shell with a new topic. If you start from the previous scene files, you must restyle chrome to match the new recipe before smoke.
+
+### Example recipes (non-exhaustive — invent combinations from the menu)
+
+| Recipe name | Combo | Feels like |
+|-------------|-------|------------|
+| Ranked lobby | `dark-arena` + `scoreboard-hud` + `neon-pill` + `bottom-card` + `bottom-center` + `thin-bar` + `arena-neon` | Competitive / gaming |
+| Chalk talk | `chalkboard` + `chalk-banner` + `chalk-underline` + `lower-third-bar` + `bottom-left-wing` + `chapter-dots` + `ink-chalk` | Classic classroom |
+| Lab notebook | `notebook-paper` + `tape-label` + `stamp` + `diagram-footer` + `absent-on-diagram-beats` + `tick-rail` + `warm-paper` | Study notes / STEM |
+| Sticky sprint | `cork-sticky` + `minimal-eyebrow` + `corner-tab` + `speech-bubble` + `mid-side-peek` + `none` + `warm-paper` | Casual / mnemonic |
+| Broadcast explainer | `broadcast-desk` + `none` + `chapter-chip` + `lower-third-bar` + `bottom-right-wing` + `thin-bar` + `lab-cyan` | News / explainer |
+
+---
 
 ### Asset cast (Kenney-only role casting)
 
@@ -66,8 +108,8 @@ Cast sprites like actors. Roles per beat:
 |------|-------|---------|---------|
 | **Hero** | 0–1 | The focal sprite (if the focal isn't pure SVG) | puck circle, trophy |
 | **Support** | 0–2 | Reinforces the idea (direction, result) | arrowRight for force, checkmark for "holds true" |
-| **Character** | persistent | Teacher/mascot, same across all beats | blue squircle body + face + hand |
-| **UI accent** | 0–1 | Callout/badge flourish | exclamation tile on the hook |
+| **Character** | persistent* | Teacher/mascot (*unless recipe seat is `absent-on-diagram-beats`) | blue/green squircle body + face + hand |
+| **UI accent** | 0–1 | Callout/badge flourish that matches the recipe | exclamation tile on the hook |
 
 Casting procedure:
 
@@ -99,6 +141,7 @@ console.log("cast ok:",cast.length)'
 | Duration | 45s |
 | Skill level | beginner |
 | Voice preference | optional (name vibe, gender, accent) |
+| Audience / theme | optional (age band, gaming/classroom/lab, etc.) — biases UI recipe |
 | Music | off (optional: video-to-music after picture lock) |
 
 ### 2. Ensure Kenney packs + read inventory
@@ -108,6 +151,8 @@ node kenney_downloader/downloadPacks.mjs
 ```
 
 Skim inventory `files` before storyboarding so options are written against sprites that actually exist.
+
+Also skim recent `mentorscroll-reel-2d/plans/*.md` **UI recipe** lines so brainstorm options don't repeat chrome.
 
 ### 3. Select voice (ElevenLabs)
 
@@ -119,9 +164,19 @@ Pick **one** `voice_id` + name; record in plan with a one-line "why it fits". Au
 
 ### 4. Brainstorm 3 options → director pass → write plan
 
-Each option: hook + title, full narration script, provisional beat table, palette/stage strategy, why it works.
+Each option must include:
 
-After presenting 3 options and locking one (user picks, or says "generate"), do the **director pass** on the locked option only: fill the full shot list + asset cast tables (template below). Mark `Status: LOCKED`.
+- Hook + title
+- Full narration script
+- Provisional beat table
+- **UI recipe** (named combo from the director menu — unique per option)
+- Why this option works (script *and* look)
+
+After presenting 3 options and locking one (user picks, or says "generate"), do the **director pass** on the locked option only:
+
+1. Confirm / finalize the **UI recipe** (pass anti-sameness vs recent plans)
+2. Fill the full shot list + asset cast tables (template below)
+3. Mark `Status: LOCKED`
 
 ### 5. Generate narration audio + timings
 
@@ -137,8 +192,9 @@ After presenting 3 options and locking one (user picks, or says "generate"), do 
 cd mentorscroll-reel-2d && npm run sync-assets
 ```
 
-Implement `src/scene.js` **from the shot list**, not from memory:
+Implement **chrome first, then diagrams** — from the locked UI recipe + shot list, not from memory of the previous reel:
 
+- Restyle `public/index.html` + `public/styles.css` to match the recipe (stage bg, header, callout, caption, character seat, progress)
 - Each beat renders its focal point in the hero zone; hierarchy 1→2→3 respected
 - Motion per the shot list (focal moves meaningfully; support idles; deterministic from `frameAt(t)`)
 - Beat boundaries produce a visible change (diagram swap at minimum)
@@ -169,15 +225,17 @@ Delete `outputs/frames_*` after encode.
 
 ### 8. Director's review (required before delivering)
 
-Read the smoke screenshots at ~10% / 40% / 70% **against the shot list** and check:
+Read the smoke screenshots at ~10% / 40% / 70% **against the shot list + UI recipe** and check:
 
 1. **Focal point test:** in each screenshot, can you name the single element the eye lands on, and is it the one the shot list says? Competing focal points = fix before render.
 2. **Hierarchy test:** reading order matches 1→2→3; no orphan decorations.
 3. **Negative space test:** frame has quiet areas; caption zone uncluttered.
-4. **Continuity test:** stage/character consistent across beats; diagram clearly changed.
-5. Caption matches spoken beat (word timings); `visualOk()` true; VO present and synced.
+4. **Continuity test:** stage/character seat consistent across beats; diagram clearly changed.
+5. **UI recipe test:** screenshots show the locked chrome (header/callout/caption/stage), not leftover chrome from a previous reel.
+6. **Sameness test:** if this reel could be mistaken for the previous topic's video after blurring the diagram text, the chrome failed — restyle and re-smoke.
+7. Caption matches spoken beat (word timings); `visualOk()` true; VO present and synced.
 
-If any test fails, fix scene.js and re-smoke before the full render.
+If any test fails, fix scene/CSS and re-smoke before the full render.
 
 ---
 
@@ -189,11 +247,13 @@ If any test fails, fix scene.js and re-smoke before the full render.
 - **Status:** DRAFT | LOCKED
 - **Duration target:** 45s
 - **Skill level:** beginner
+- **Audience / theme:** {optional age/interest bias}
 - **Voice:** {voice_name} (`{voice_id}`) — {why}
 - **TTS model:** eleven_multilingual_v2
 - **Timing source:** tts-with-timestamps → forced-alignment refine
 - **Music:** none | video-to-music after picture lock
-- **Palette:** {bg family} + {accent} accent
+- **UI recipe:** {stage} / {header} / {callout} / {caption} / {character seat} / {progress} / {palette}
+- **Anti-sameness:** vs recent plans {filenames} — changed {what}
 
 ## Narration script (full)
 
@@ -203,26 +263,39 @@ If any test fails, fix scene.js and re-smoke before the full render.
 
 ### OPTION 1 — "{title}" ✅/pending
 - Hook: …
+- **UI recipe:** …
 - Beats (provisional):
 
 | # | t0–t1 | Caption | Diagram (SVG) | Narration cue |
 |---|-------|---------|---------------|---------------|
 | 1 | 0–4 | … | … | Wait. |
 
-- Why this option: …
+- Why this option: … (script + look)
 
-### OPTION 2 — …
-### OPTION 3 — …
+### OPTION 2 — … (different UI recipe)
+### OPTION 3 — … (different UI recipe)
 
 ## Locked choice
-Option {N} — {one-line reason}
+Option {N} — {one-line reason including look}
+
+## UI recipe (locked)
+
+| Slot | Choice | Implementation note |
+|------|--------|---------------------|
+| Stage | … | CSS bg / texture |
+| Header | … | #hud markup or omit |
+| Callout | … | #callout style or omit |
+| Caption | … | #caption shape |
+| Character seat | … | #actor position / visibility rules |
+| Progress | … | #progress variant or omit |
+| Palette | … | CSS variables / accent hex |
 
 ## Director shot list (locked option — every cell filled)
 
-| # | Shot | Focal point | Hierarchy (1→2→3) | Motion | Cut/hold | Negative space |
-|---|------|-------------|--------------------|--------|----------|----------------|
-| 1 | Hook | "WAIT" badge pulse | badge → character point → caption | badge pulse ×2, character lean-in | fast cut ≤4s | top third quiet |
-| 2 | Law 1 | puck sliding on track | puck → force arrow appears → caption | puck slides L→R, arrow slams in at cue word | hold, 1 event | sides of track clear |
+| # | Shot | Focal point | Hierarchy (1→2→3) | Motion | Cut/hold | Negative space | UI beat note |
+|---|------|-------------|--------------------|--------|----------|----------------|--------------|
+| 1 | Hook | "WAIT" badge pulse | badge → character point → caption | badge pulse ×2, character lean-in | fast cut ≤4s | quiet zone per recipe | callout label "WAIT" |
+| 2 | Law 1 | puck sliding on track | puck → force arrow appears → caption | puck slides L→R, arrow slams in at cue word | hold, 1 event | sides of track clear | callout → "LAW 1" |
 
 ## Asset cast (verified against inventory — real paths only)
 
@@ -258,8 +331,8 @@ Verified: `node -e …` (paste check output or "cast ok: N")
 kenney/assets/                    # packs + inventory.json (source of truth for casting)
 kenney_downloader/
 mentorscroll-reel-2d/
-  plans/                          # plan + shot list + asset cast (required)
-  public/ src/ scripts/
+  plans/                          # plan + UI recipe + shot list + asset cast (required)
+  public/ src/ scripts/           # chrome (html/css) must match locked UI recipe
 outputs/
   audio/                          # vo + alignment json
   mentorscroll2d_*.mp4
@@ -267,28 +340,34 @@ outputs/
 
 ## Hard requirements
 
-- Plan with **complete shot list + verified asset cast** written before scene code / render
+- Plan with **complete UI recipe + shot list + verified asset cast** written before scene code / render
+- Three brainstorm options use **three different UI recipes**
+- Locked recipe passes **anti-sameness** vs the 2–3 most recent plans
 - Voice chosen via `GET /v1/voices` (or explicit user `voice_id`)
 - Narration via ElevenLabs TTS; timings via `with-timestamps` and/or forced alignment
 - One focal point per beat; visible change at every beat boundary
 - Every sprite on screen has a stated meaning in the cast table
-- Portrait 1080×1920; captions in lower safe area; deterministic `frameAt(t)`
+- Portrait 1080×1920; captions readable in lower safe area; deterministic `frameAt(t)`
+- HTML/CSS chrome implemented to match the recipe (not diagram-only restyle)
 
 ## Pitfalls
 
 | Problem | Fix |
 |---------|-----|
+| Every reel looks like the last one | Recast UI recipe (stage/header/callout/caption); restyle CSS before coding diagrams |
 | Icon soup (sprites as filler) | Delete anything not in the cast table's hierarchy |
 | Two things fighting for attention | Demote one to support (smaller, muted, less motion) |
 | Invented Kenney paths | Recast from inventory.json; verify with the node check |
-| Beat boundary invisible | Swap diagram + shift layout accent at `t0` |
+| Beat boundary invisible | Swap diagram + shift callout label at `t0` |
 | Captions drift | Rebuild beat table from word timestamps |
 | VO shorter than video | Set DURATION to audio length |
 | Frozen motion | Drive transforms from `frameAt(t)` |
 | Missing API key | Fail voice step loudly; do not silent-skip VO |
+| Options differ only in hook copy | Force each option onto a different UI recipe from the menu |
+| Copied previous `styles.css` shell | Treat leftover arena HUD as a failed UI recipe test |
 
 ## Example
 
-**Input:** Newton's laws, beginner, 45s, 2D  
+**Input:** Newton's laws, beginner, 45s, 2D, gaming-leaning audience  
 
-**Plan:** 3 hooks → lock Option 1 → director pass (shot list: puck = focal of Law 1, arrow slams at "force"; trophy = focal of closer) → cast from inventory + verify → Adam voice via `/v1/voices` → TTS+timestamps → forced-alignment → audio-locked beats → scene per shot list → smoke vs shot list → MP4 + muxed VO
+**Plan:** 3 hooks each with a distinct UI recipe (ranked lobby / chalk talk / lab notebook) → lock Option 1 (arena) → anti-sameness check vs recent plans → director pass (shot list + UI beat notes) → cast from inventory + verify → Liam voice via `/v1/voices` → TTS+timestamps → forced-alignment → audio-locked beats → restyle chrome to recipe → scene per shot list → smoke vs shot list **and** UI recipe → MP4 + muxed VO
