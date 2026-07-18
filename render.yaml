@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: edureels-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HLS_ROOT
+        value: /data/hls
+      - key: TTS_CACHE_DIR
+        value: /data/tts-cache
+      - key: TTS_DAILY_CHAR_BUDGET
+        value: "50000"
+      - key: ELEVENLABS_MODEL
+        value: eleven_flash_v2_5
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        sync: false
+      - key: EXA_API_KEY
+        sync: false
+      - key: EXA_ENABLED
+        value: "true"
+    disk:
+      name: edureels-media
+      mountPath: /data
+      sizeGB: 5
