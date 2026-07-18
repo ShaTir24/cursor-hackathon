@@ -1,0 +1,17 @@
+{
+  "name": "edureels",
+  "private": true,
+  "scripts": {
+    "web": "npm run web --prefix app",
+    "ios": "npm run ios --prefix app",
+    "backend": "npm run start:dev --prefix backend",
+    "dev": "npx concurrently -k \"npm run backend\" \"npm run web\"",
+    "test:backend": "npm test --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "dependencies": {
+    "playwright": "^1.61.1"
+  }
+}

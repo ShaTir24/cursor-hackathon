@@ -1,0 +1,564 @@
+{
+  "ageGroups": [
+    {
+      "id": "ages_5_10",
+      "label": "5–10 · Little explorers",
+      "minAge": 5,
+      "maxAge": 10
+    },
+    {
+      "id": "ages_11_14",
+      "label": "11–14 · Middle school energy",
+      "minAge": 11,
+      "maxAge": 14
+    },
+    {
+      "id": "ages_15_18",
+      "label": "15–18 · High school / GenZ",
+      "minAge": 15,
+      "maxAge": 18
+    },
+    {
+      "id": "ages_19_24",
+      "label": "19–24 · Campus & first jobs",
+      "minAge": 19,
+      "maxAge": 24
+    },
+    {
+      "id": "ages_25_34",
+      "label": "25–34 · Builders & side-quests",
+      "minAge": 25,
+      "maxAge": 34
+    },
+    {
+      "id": "ages_35_45",
+      "label": "35–45 · Pros & lifelong learners",
+      "minAge": 35,
+      "maxAge": 45
+    }
+  ],
+  "topics": [
+    {
+      "id": "topic_science_tech",
+      "domain": "Science & Technology",
+      "label": "How things work"
+    },
+    {
+      "id": "topic_space_earth",
+      "domain": "Science & Technology",
+      "label": "Space, Earth & climate"
+    },
+    {
+      "id": "topic_coding_ai",
+      "domain": "Science & Technology",
+      "label": "Coding & AI basics"
+    },
+    {
+      "id": "topic_art_visual",
+      "domain": "Art & Literature",
+      "label": "Visual arts & design"
+    },
+    {
+      "id": "topic_stories",
+      "domain": "Art & Literature",
+      "label": "Stories & storytelling"
+    },
+    {
+      "id": "topic_music",
+      "domain": "Art & Literature",
+      "label": "Music & sound"
+    },
+    {
+      "id": "topic_history",
+      "domain": "History & Culture",
+      "label": "World history"
+    },
+    {
+      "id": "topic_cultures",
+      "domain": "History & Culture",
+      "label": "Cultures & traditions"
+    },
+    {
+      "id": "topic_math",
+      "domain": "Math & Logic",
+      "label": "Numbers that matter"
+    },
+    {
+      "id": "topic_puzzles",
+      "domain": "Math & Logic",
+      "label": "Puzzles & problem-solving"
+    },
+    {
+      "id": "topic_health_body",
+      "domain": "Health & Wellness",
+      "label": "Body & nutrition"
+    },
+    {
+      "id": "topic_mindfulness",
+      "domain": "Health & Wellness",
+      "label": "Mindfulness & habits"
+    },
+    {
+      "id": "topic_life_skills",
+      "domain": "Life Skills / Career",
+      "label": "Everyday life skills"
+    },
+    {
+      "id": "topic_money",
+      "domain": "Life Skills / Career",
+      "label": "Money & smart choices"
+    },
+    {
+      "id": "topic_careers",
+      "domain": "Life Skills / Career",
+      "label": "Careers & paths"
+    },
+    {
+      "id": "topic_environment",
+      "domain": "Science & Technology",
+      "label": "Nature & environment"
+    }
+  ],
+  "learningPrioritiesByAgeGroup": {
+    "ages_5_10": {
+      "trendingInterests": [
+        "sandbox building",
+        "animals and dinosaurs",
+        "space adventures",
+        "puzzles and challenges",
+        "sports",
+        "DIY and making"
+      ],
+      "contentGuidance": "Use concrete objects, friendly characters, short stories, visible cause-and-effect, and one simple interaction. Avoid dense text, frightening imagery, brands, and copyrighted characters.",
+      "priorities": [
+        {
+          "topicId": "topic_math",
+          "priority": 1,
+          "complexConcepts": ["number sense", "place value", "fractions", "basic geometry"],
+          "videoPattern": "Concrete objects → animated transformation → predict the answer → immediate visual feedback"
+        },
+        {
+          "topicId": "topic_science_tech",
+          "priority": 2,
+          "complexConcepts": ["forces and motion", "light and shadows", "weather", "the solar system"],
+          "videoPattern": "Curiosity question → visible demonstration → predict-observe-explain"
+        },
+        {
+          "topicId": "topic_health_body",
+          "priority": 3,
+          "complexConcepts": ["body systems", "nutrition", "hygiene", "emotions"],
+          "videoPattern": "Relatable daily scenario → body animation → one safe action to try"
+        },
+        {
+          "topicId": "topic_stories",
+          "priority": 4,
+          "complexConcepts": ["sequence", "cause and effect", "main idea", "character motivation"],
+          "videoPattern": "Three-beat story → pause for prediction → reveal and retell"
+        }
+      ]
+    },
+    "ages_11_14": {
+      "trendingInterests": [
+        "sandbox and social gaming",
+        "creator challenges",
+        "anime-inspired progression",
+        "sports analytics",
+        "mysteries and escape rooms",
+        "science experiments"
+      ],
+      "contentGuidance": "Frame learning as a challenge with visible progress. Use age-respectful humour, real-world examples, misconception checks, and interactive predictions without imitating a specific franchise.",
+      "priorities": [
+        {
+          "topicId": "topic_math",
+          "priority": 1,
+          "complexConcepts": ["fractions and ratios", "algebraic variables", "proportions", "geometry"],
+          "videoPattern": "Real scenario → visual model → worked step → solve a near-transfer problem"
+        },
+        {
+          "topicId": "topic_science_tech",
+          "priority": 2,
+          "complexConcepts": ["mechanics", "waves", "particles", "chemical bonding", "cells and genetics"],
+          "videoPattern": "Common misconception → simulation or experiment → scientific explanation → check"
+        },
+        {
+          "topicId": "topic_coding_ai",
+          "priority": 3,
+          "complexConcepts": ["variables", "assignment", "conditionals", "loops", "program state"],
+          "videoPattern": "Predict output → execute line by line → show memory state → debug one mistake"
+        },
+        {
+          "topicId": "topic_history",
+          "priority": 4,
+          "complexConcepts": ["chronology", "causation", "perspective", "source reliability"],
+          "videoPattern": "Timeline hook → two perspectives → source clue → justify a conclusion"
+        }
+      ]
+    },
+    "ages_15_18": {
+      "trendingInterests": [
+        "short-form creator culture",
+        "AI and future technology",
+        "ranked gaming and esports",
+        "music and performance",
+        "climate action",
+        "careers and personal finance"
+      ],
+      "contentGuidance": "Use fast hooks but preserve academic depth. Connect concepts to exams, careers, technology, money, and current life while requiring a prediction, calculation, or source judgment.",
+      "priorities": [
+        {
+          "topicId": "topic_math",
+          "priority": 1,
+          "complexConcepts": ["functions", "calculus", "probability", "statistics", "mathematical modelling"],
+          "videoPattern": "Real data hook → visual derivation → worked example → transfer question"
+        },
+        {
+          "topicId": "topic_science_tech",
+          "priority": 2,
+          "complexConcepts": ["mechanics", "thermodynamics", "electricity", "equilibrium", "genetics and evolution"],
+          "videoPattern": "Counterintuitive claim → multi-level visualization → evidence → exam-style check"
+        },
+        {
+          "topicId": "topic_coding_ai",
+          "priority": 3,
+          "complexConcepts": ["algorithms", "data structures", "debugging", "machine learning", "AI reliability"],
+          "videoPattern": "Problem → trace the system → expose a failure case → build or evaluate a solution"
+        },
+        {
+          "topicId": "topic_money",
+          "priority": 4,
+          "complexConcepts": ["compound interest", "credit", "budgeting", "tax basics", "financial risk"],
+          "videoPattern": "Teen-life money decision → calculate consequences → compare choices → action rule"
+        },
+        {
+          "topicId": "topic_history",
+          "priority": 5,
+          "complexConcepts": ["historical causation", "source bias", "corroboration", "misinformation"],
+          "videoPattern": "Viral claim → inspect sources → add context → evidence-based verdict"
+        }
+      ]
+    },
+    "ages_19_24": {
+      "trendingInterests": [
+        "AI and practical technology",
+        "career readiness",
+        "creator economy",
+        "entrepreneurship",
+        "financial independence",
+        "wellbeing and travel"
+      ],
+      "contentGuidance": "Prioritize useful, credible and career-linked explanations. Use campus, internship and first-job scenarios with explicit sources, trade-offs, and a practical next step.",
+      "priorities": [
+        {
+          "topicId": "topic_coding_ai",
+          "priority": 1,
+          "complexConcepts": ["applied AI", "data literacy", "programming mental models", "cybersecurity", "automation"],
+          "videoPattern": "Workplace problem → tool or model → verify output → apply safely"
+        },
+        {
+          "topicId": "topic_math",
+          "priority": 2,
+          "complexConcepts": ["statistics", "research methods", "data interpretation", "risk and uncertainty"],
+          "videoPattern": "Questionable chart or claim → inspect data → calculate → interpret limitations"
+        },
+        {
+          "topicId": "topic_careers",
+          "priority": 3,
+          "complexConcepts": ["career selection", "communication", "portfolio evidence", "interviews", "workplace collaboration"],
+          "videoPattern": "First-job scenario → model a strong response → critique → reusable checklist"
+        },
+        {
+          "topicId": "topic_money",
+          "priority": 4,
+          "complexConcepts": ["student debt", "salary and taxes", "credit", "investing", "renting"],
+          "videoPattern": "Realistic decision → compare total costs → expose trade-offs → decision rule"
+        },
+        {
+          "topicId": "topic_history",
+          "priority": 5,
+          "complexConcepts": ["media literacy", "source evaluation", "argumentation", "cultural context"],
+          "videoPattern": "Competing claims → source and context check → synthesis → defend a position"
+        }
+      ]
+    },
+    "ages_25_34": {
+      "trendingInterests": [
+        "AI upskilling",
+        "career growth and side projects",
+        "personal finance and housing",
+        "data and cybersecurity",
+        "sustainable wellness",
+        "relationships and practical adulting"
+      ],
+      "contentGuidance": "Deliver time-efficient, outcome-oriented lessons using realistic work and life decisions. State assumptions, quantify trade-offs, and finish with an immediately reusable framework.",
+      "priorities": [
+        {
+          "topicId": "topic_coding_ai",
+          "priority": 1,
+          "complexConcepts": ["AI workflows", "prompt evaluation", "data analysis", "cybersecurity", "automation"],
+          "videoPattern": "Pain point → efficient workflow → quality check → reusable template"
+        },
+        {
+          "topicId": "topic_money",
+          "priority": 2,
+          "complexConcepts": ["taxes", "investing", "mortgages", "insurance", "retirement planning"],
+          "videoPattern": "Adult-life decision → compare scenarios → reveal long-term cost → checklist"
+        },
+        {
+          "topicId": "topic_careers",
+          "priority": 3,
+          "complexConcepts": ["negotiation", "leadership", "career switching", "communication", "skill planning"],
+          "videoPattern": "Workplace case → options and trade-offs → model response → action plan"
+        },
+        {
+          "topicId": "topic_health_body",
+          "priority": 4,
+          "complexConcepts": ["sleep", "stress", "nutrition", "exercise", "preventive health"],
+          "videoPattern": "Daily habit → explain mechanism → evidence boundary → one sustainable change"
+        },
+        {
+          "topicId": "topic_life_skills",
+          "priority": 5,
+          "complexConcepts": ["housing", "contracts", "time management", "relationships with systems"],
+          "videoPattern": "Common adulting problem → explain hidden rules → avoidable mistake → next step"
+        }
+      ]
+    },
+    "ages_35_45": {
+      "trendingInterests": [
+        "AI-assisted work",
+        "career resilience and leadership",
+        "family finance",
+        "preventive health",
+        "parenting and family learning",
+        "practical hobbies"
+      ],
+      "contentGuidance": "Use concise expert briefings, familiar cases and low-jargon explanations. Respect existing experience, distinguish evidence from hype, and connect every lesson to a decision or skill.",
+      "priorities": [
+        {
+          "topicId": "topic_coding_ai",
+          "priority": 1,
+          "complexConcepts": ["AI-assisted work", "automation judgment", "data privacy", "cybersecurity", "technology evaluation"],
+          "videoPattern": "Decision brief → demonstrate tool → risks and verification → adoption checklist"
+        },
+        {
+          "topicId": "topic_careers",
+          "priority": 2,
+          "complexConcepts": ["leadership", "career transition", "mentoring", "strategic communication", "reskilling"],
+          "videoPattern": "Professional case → decision framework → expert example → reflection prompt"
+        },
+        {
+          "topicId": "topic_money",
+          "priority": 3,
+          "complexConcepts": ["retirement", "family budgeting", "insurance", "debt", "education costs"],
+          "videoPattern": "Family scenario → calculate trade-offs → risk check → planning action"
+        },
+        {
+          "topicId": "topic_health_body",
+          "priority": 4,
+          "complexConcepts": ["preventive screening", "mobility", "sleep", "stress", "nutrition"],
+          "videoPattern": "Health question → mechanism and evidence → warning signs → practical habit"
+        },
+        {
+          "topicId": "topic_life_skills",
+          "priority": 5,
+          "complexConcepts": ["helping children learn", "digital safety", "home systems", "caregiving"],
+          "videoPattern": "Family or home challenge → explain simply → demonstrate → shared action"
+        }
+      ]
+    }
+  },
+  "themesByAgeGroup": {
+    "ages_5_10": [
+      {
+        "id": "theme_pokemon",
+        "label": "Creature collector quest",
+        "vibe": "Discover and classify original creatures — bright, quest-driven, collectible facts"
+      },
+      {
+        "id": "theme_disney_fairy",
+        "label": "Fairy-tale quests",
+        "vibe": "Storybook heroes, magic metaphors, gentle wonder"
+      },
+      {
+        "id": "theme_dino_dig",
+        "label": "Dino dig site",
+        "vibe": "Excavate ideas like fossils — playful paleontology energy"
+      },
+      {
+        "id": "theme_superhero_kids",
+        "label": "Kid superheroes",
+        "vibe": "Powers = skills; villains = misconceptions"
+      },
+      {
+        "id": "theme_animal_friends",
+        "label": "Animal friends",
+        "vibe": "Talking critters guide each lesson"
+      },
+      {
+        "id": "theme_lego_build",
+        "label": "Brick builders",
+        "vibe": "Snap concepts together brick-by-brick"
+      }
+    ],
+    "ages_11_14": [
+      {
+        "id": "theme_minecraft",
+        "label": "Sandbox builder world",
+        "vibe": "Craft systems, logic circuits, collaborative building and exploration metaphors"
+      },
+      {
+        "id": "theme_marvel_lore",
+        "label": "Comic hero universe",
+        "vibe": "Original hero origin stories for ideas; team-up explanations"
+      },
+      {
+        "id": "theme_sports_arena",
+        "label": "Sports arena",
+        "vibe": "Plays, scores, highlight-reel science"
+      },
+      {
+        "id": "theme_yt_creator",
+        "label": "YouTube creator desk",
+        "vibe": "Thumbnails, challenges, explain-like-a-creator"
+      },
+      {
+        "id": "theme_anime_quest",
+        "label": "Anime training arc",
+        "vibe": "Level-up arcs, sensei tips, power-scaling knowledge"
+      },
+      {
+        "id": "theme_escape_room",
+        "label": "Escape-room puzzles",
+        "vibe": "Clues unlock the next concept"
+      }
+    ],
+    "ages_15_18": [
+      {
+        "id": "theme_genz_fyp",
+        "label": "Short-form creator lab",
+        "vibe": "Hook-first, meme-literate, scroll-stopping explainers"
+      },
+      {
+        "id": "theme_kpop_stage",
+        "label": "K-pop stagecraft",
+        "vibe": "Choreography of ideas, comeback eras for topics"
+      },
+      {
+        "id": "theme_gaming_ranked",
+        "label": "Ranked gaming",
+        "vibe": "Elo climbs, loadouts, clutch moments = mastery"
+      },
+      {
+        "id": "theme_startup_garage",
+        "label": "Teen startup garage",
+        "vibe": "Pitch decks for concepts, MVP thinking"
+      },
+      {
+        "id": "theme_streetwear_drop",
+        "label": "Streetwear drop culture",
+        "vibe": "Limited drops of insight, hype with substance"
+      },
+      {
+        "id": "theme_climate_activism",
+        "label": "Climate activism HQ",
+        "vibe": "Campaign briefings, data with urgency"
+      }
+    ],
+    "ages_19_24": [
+      {
+        "id": "theme_campus_cafe",
+        "label": "Campus café debates",
+        "vibe": "Late-night study energy, peer-to-peer explainers"
+      },
+      {
+        "id": "theme_internship_irl",
+        "label": "Internship IRL",
+        "vibe": "First-job scenarios, professionally realistic but human"
+      },
+      {
+        "id": "theme_creator_economy",
+        "label": "Creator economy",
+        "vibe": "Audience, algorithms, craft as career"
+      },
+      {
+        "id": "theme_festival_circuit",
+        "label": "Festival / travel circuit",
+        "vibe": "City-hopping case studies, culture mashups"
+      },
+      {
+        "id": "theme_indie_hack",
+        "label": "Indie hacker build-in-public",
+        "vibe": "Ship-fast metaphors, metrics that matter"
+      },
+      {
+        "id": "theme_spotify_wrapped",
+        "label": "Personalized year recap",
+        "vibe": "Personal stats energy applied to learning"
+      }
+    ],
+    "ages_25_34": [
+      {
+        "id": "theme_product_sprint",
+        "label": "Product sprint room",
+        "vibe": "Standups, roadmaps, decision frameworks"
+      },
+      {
+        "id": "theme_side_hustle",
+        "label": "Side-hustle lab",
+        "vibe": "Nights-and-weekends builds, ROI of skills"
+      },
+      {
+        "id": "theme_wellness_club",
+        "label": "Wellness club",
+        "vibe": "Habits, recovery, sustainable ambition"
+      },
+      {
+        "id": "theme_city_apartment",
+        "label": "City-apartment life",
+        "vibe": "Adulting scenarios: rent, recipes, relationships with systems"
+      },
+      {
+        "id": "theme_true_crime_doc",
+        "label": "Docuseries deep-dive",
+        "vibe": "Narrative investigation framing for any topic"
+      },
+      {
+        "id": "theme_boardgame_night",
+        "label": "Board-game night",
+        "vibe": "Strategy, probability, social systems"
+      }
+    ],
+    "ages_35_45": [
+      {
+        "id": "theme_executive_brief",
+        "label": "Executive brief",
+        "vibe": "Crisp, signal-over-noise, decision-ready takeaways"
+      },
+      {
+        "id": "theme_family_table",
+        "label": "Family dinner table",
+        "vibe": "Explain-to-your-kid clarity; intergenerational stories"
+      },
+      {
+        "id": "theme_hobby_workshop",
+        "label": "Weekend workshop",
+        "vibe": "Woodshop / kitchen / garden craft metaphors"
+      },
+      {
+        "id": "theme_career_pivot",
+        "label": "Career pivot studio",
+        "vibe": "Second acts, transferable skills, confidence rebuild"
+      },
+      {
+        "id": "theme_local_history",
+        "label": "Local history walk",
+        "vibe": "Neighborhood lenses on big ideas"
+      },
+      {
+        "id": "theme_podcast_longform",
+        "label": "Longform podcast desk",
+        "vibe": "Thoughtful pacing, expert-guest energy"
+      }
+    ]
+  }
+}
