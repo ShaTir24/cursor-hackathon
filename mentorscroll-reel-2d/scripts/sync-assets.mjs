@@ -8,28 +8,37 @@ const ROOT = path.join(__dirname, '..')
 const KENNEY = path.join(ROOT, '..', 'kenney', 'assets')
 const DST = path.join(ROOT, 'assets', 'kenney')
 
-// Asset cast from plans/newtons_laws_ranked_20260718.md (verified against inventory)
+// Asset cast from plans/indian_freedom_fighters_marvel_20260718.md (verified against inventory)
 const NEEDED = [
-  // Character (persistent)
-  'shape-characters/PNG/Default/green_body_squircle.png',
+  // Host character (persistent)
+  'shape-characters/PNG/Default/blue_body_squircle.png',
   'shape-characters/PNG/Default/face_a.png',
-  'shape-characters/PNG/Default/green_hand_point.png',
-  'shape-characters/PNG/Default/green_hand_open.png',
-  'shape-characters/PNG/Default/green_hand_rock.png',
+  'shape-characters/PNG/Default/blue_hand_point.png',
+  'shape-characters/PNG/Default/blue_hand_open.png',
+  'shape-characters/PNG/Default/blue_hand_peace.png',
   // Beat 1 — hook
-  'game-icons/PNG/White/2x/gamepad.png',
-  'game-icons/PNG/White/2x/exclamation.png',
-  // Beat 2 — inertia
-  'game-icons/PNG/White/2x/joystick.png',
+  'shape-characters/PNG/Default/tile_exclamation.png',
+  'game-icons/PNG/White/2x/question.png',
+  // Beat 2 — Gandhi
+  'shape-characters/PNG/Default/yellow_body_squircle.png',
+  'shape-characters/PNG/Default/hand_yellow_peace.png',
+  'game-icons/PNG/White/2x/information.png',
+  // Beat 3 — Bhagat
+  'shape-characters/PNG/Default/red_body_squircle.png',
+  'shape-characters/PNG/Default/red_hand_rock.png',
+  'game-icons/PNG/White/2x/star.png',
+  // Beat 4 — Bose
+  'shape-characters/PNG/Default/purple_body_squircle.png',
   'game-icons/PNG/White/2x/arrowRight.png',
-  // Beat 3 — F=ma
-  'game-icons/PNG/White/2x/target.png',
-  // Beat 4 — action/reaction
-  'game-icons/PNG/White/2x/arrowLeft.png',
-  // Beat 5 — rank up
-  'game-icons/PNG/White/2x/trophy.png',
+  'game-icons/PNG/White/2x/power.png',
+  // Beat 5 — Rani
+  'shape-characters/PNG/Default/pink_body_squircle.png',
   'game-icons/PNG/White/2x/medal1.png',
-  'game-icons/PNG/White/2x/medal2.png',
+  'shape-characters/PNG/Default/pink_hand_point.png',
+  // Beat 6 — closer
+  'game-icons/PNG/White/2x/trophy.png',
+  'game-icons/PNG/White/2x/checkmark.png',
+  'game-icons/PNG/White/2x/massiveMultiplayer.png',
 ]
 
 function copyOne(rel) {

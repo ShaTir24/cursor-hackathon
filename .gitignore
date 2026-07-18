@@ -12,6 +12,7 @@ web/.next
 outputs
 demo-outputs
 data
+video-workspaces
 
 *.mp4
 *.mp3

@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "test": "jest --passWithNoTests",
     "test:unit": "jest --testPathPattern=\\.spec\\.ts$",

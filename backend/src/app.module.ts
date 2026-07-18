@@ -5,6 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CatalogueModule } from './modules/catalogue/catalogue.module';
 import { GenerationModule } from './modules/generation/generation.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
+import { VideoCreationModule } from './modules/video-creation/video-creation.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
     CatalogueModule,
     ProfilesModule,
     GenerationModule,
+    VideoCreationModule,
   ],
   controllers: [HealthController],
 })
