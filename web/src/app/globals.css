@@ -97,6 +97,26 @@
   .font-display {
     font-family: var(--font-display), ui-serif, Georgia, serif;
   }
+  a,
+  button,
+  [role="button"] {
+    @apply cursor-pointer;
+  }
+  /* Soft learning atmosphere — entry / brand surfaces */
+  .edu-mesh {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(ellipse 80% 60% at 15% 20%, rgba(11, 110, 79, 0.12), transparent 55%),
+      radial-gradient(ellipse 70% 50% at 85% 75%, rgba(232, 245, 239, 0.9), transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(11, 110, 79, 0.06), transparent 60%);
+  }
+  /* Quieter wash inside app chrome */
+  .edu-mesh-inset {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(ellipse 70% 50% at 100% 0%, rgba(11, 110, 79, 0.06), transparent 55%),
+      radial-gradient(ellipse 50% 40% at 0% 100%, rgba(232, 245, 239, 0.7), transparent 50%);
+  }
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

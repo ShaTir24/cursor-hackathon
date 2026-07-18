@@ -4,22 +4,24 @@ import type { CatalogueItem, LessonPack, Profile, VideoStatus } from "@/lib/type
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:3000";
 
-async function getAccessToken(): Promise<string> {
+async function authHeaders(): Promise<Record<string, string>> {
   const supabase = createClient();
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
   const token = data.session?.access_token;
   if (!token) throw new Error("Not signed in");
-  return token;
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
 }
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = await getAccessToken();
+  const auth = await authHeaders();
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      ...auth,
       ...(init?.headers as Record<string, string> | undefined),
     },
   });
@@ -30,14 +32,62 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+function asItem(raw: {
+  id?: string;
+  slug?: string;
+  label?: string;
+}): CatalogueItem | null {
+  if (!raw?.id || !raw?.label) return null;
+  return {
+    id: raw.id,
+    slug: raw.slug ?? String(raw.id).replace(/^topic_|^theme_/, ""),
+    label: raw.label,
+  };
+}
+
+/** Normalize catalogue so UI never sees undefined arrays. */
+export function normalizeCatalogue(raw: unknown): {
+  topics: CatalogueItem[];
+  interests: CatalogueItem[];
+} {
+  const data = (raw ?? {}) as {
+    topics?: Array<{ id?: string; slug?: string; label?: string }>;
+    interests?: Array<{ id?: string; slug?: string; label?: string }>;
+    themesByAgeGroup?: Record<
+      string,
+      Array<{ id?: string; slug?: string; label?: string }>
+    >;
+  };
+
+  const topics = (data.topics ?? [])
+    .map(asItem)
+    .filter((x): x is CatalogueItem => Boolean(x));
+
+  const interests = (data.interests ?? [])
+    .map(asItem)
+    .filter((x): x is CatalogueItem => Boolean(x));
+
+  if (interests.length === 0 && data.themesByAgeGroup) {
+    const seen = new Set<string>();
+    for (const themes of Object.values(data.themesByAgeGroup)) {
+      for (const theme of themes ?? []) {
+        const item = asItem(theme);
+        if (item && !seen.has(item.id)) {
+          seen.add(item.id);
+          interests.push(item);
+        }
+      }
+    }
+  }
+
+  return { topics, interests };
+}
+
 /** Catalogue is @Public on Nest */
 export async function fetchCatalogue() {
   const res = await fetch(`${API_BASE}/api/v1/catalogue`);
   if (!res.ok) throw new Error(`Catalogue failed: ${res.status}`);
-  return res.json() as Promise<{
-    topics: CatalogueItem[];
-    interests: CatalogueItem[];
-  }>;
+  return normalizeCatalogue(await res.json());
 }
 
 export function bootstrapProfile() {

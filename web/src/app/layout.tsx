@@ -15,8 +15,14 @@ const sourceSans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "EduReels",
-  description: "Personalized educational video for students and teachers",
+  title: "EduReels — Personalized learning reels",
+  description:
+    "Generate personalized educational HLS lessons for students and teachers.",
+  applicationName: "EduReels",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({

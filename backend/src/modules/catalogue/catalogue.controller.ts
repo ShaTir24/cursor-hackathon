@@ -1,14 +1,26 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { Public } from '../auth/public.decorator';
+import { Public } from '../auth/jwt-auth.guard';
 import { CatalogueService } from './catalogue.service';
+import { CatalogueStore } from './catalogue.store';
 
 @Controller('catalogue')
 export class CatalogueController {
-  constructor(private readonly catalogue: CatalogueService) {}
+  constructor(
+    private readonly catalogue: CatalogueService,
+    private readonly store: CatalogueStore,
+  ) {}
 
+  /** EduReels onboarding shape: { topics, interests } with UUID ids */
   @Public()
   @Get()
-  getCatalogue() {
+  list() {
+    return this.store.list();
+  }
+
+  /** Extended MentorScroll-style catalogue (age themes / priorities) */
+  @Public()
+  @Get('extended')
+  getExtended() {
     return this.catalogue.getCatalogue();
   }
 

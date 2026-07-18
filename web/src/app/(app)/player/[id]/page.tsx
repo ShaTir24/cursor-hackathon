@@ -26,9 +26,32 @@ import {
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ListChecks, MessageSquareText, Target } from "lucide-react";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EduReelsLogo } from "@/components/brand/edu-reels-logo";
+
+function PackSection({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: typeof Target;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="flex size-8 items-center justify-center rounded-md bg-accent text-primary">
+          <Icon className="size-4" aria-hidden />
+        </span>
+        <h3 className="font-display text-base tracking-tight">{title}</h3>
+      </div>
+      {children}
+    </section>
+  );
+}
 
 function PlayerInner() {
   const params = useParams<{ id: string }>();
@@ -100,19 +123,24 @@ function PlayerInner() {
   const showPackChrome = Boolean(lessonPackId);
 
   return (
-    <div className="mx-auto max-w-5xl animate-in fade-in duration-200 space-y-4">
+    <div className="mx-auto max-w-5xl space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/home" />}>Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Player</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <div className="flex min-w-0 items-center gap-3">
+          <EduReelsLogo size="sm" withWordmark={false} className="shrink-0" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink render={<Link href="/home" />}>
+                  Home
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Player</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
         <div className="flex items-center gap-2">
           {showPackChrome && (
             <Sheet>
@@ -130,12 +158,13 @@ function PlayerInner() {
                 data-testid="lesson-pack-panel"
               >
                 <SheetHeader>
-                  <SheetTitle>Lesson pack</SheetTitle>
+                  <SheetTitle className="font-display">Lesson pack</SheetTitle>
                   <SheetDescription>
-                    Objectives, talking points, and quiz for this reel.
+                    Teaching companion for this reel — objectives, talking
+                    points, and quiz.
                   </SheetDescription>
                 </SheetHeader>
-                <div className="mt-6 space-y-4 px-4 pb-6">
+                <div className="mt-6 space-y-6 px-4 pb-8">
                   {packLoading && <Skeleton className="h-40 w-full" />}
                   {packError && (
                     <Alert variant="destructive">
@@ -154,40 +183,60 @@ function PlayerInner() {
                   )}
                   {pack && !packLoading && (
                     <>
-                      <section>
-                        <h3 className="mb-2 text-sm font-semibold">Objectives</h3>
-                        <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                      <PackSection icon={Target} title="Objectives">
+                        <ul className="space-y-2 text-sm text-muted-foreground">
                           {pack.payload.objectives.map((o) => (
-                            <li key={o}>{o}</li>
+                            <li
+                              key={o}
+                              className="flex gap-2 rounded-lg border border-border/60 bg-muted/30 px-3 py-2"
+                            >
+                              <span
+                                className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary"
+                                aria-hidden
+                              />
+                              <span>{o}</span>
+                            </li>
                           ))}
                         </ul>
-                      </section>
+                      </PackSection>
                       <Separator />
-                      <section>
-                        <h3 className="mb-2 text-sm font-semibold">
-                          Talking points
-                        </h3>
-                        <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                      <PackSection
+                        icon={MessageSquareText}
+                        title="Talking points"
+                      >
+                        <ul className="space-y-2 text-sm text-muted-foreground">
                           {pack.payload.talkingPoints.map((o) => (
-                            <li key={o}>{o}</li>
+                            <li
+                              key={o}
+                              className="rounded-lg border border-border/60 bg-card px-3 py-2"
+                            >
+                              {o}
+                            </li>
                           ))}
                         </ul>
-                      </section>
+                      </PackSection>
                       <Separator />
-                      <section aria-label="Quiz">
-                        <h3 className="mb-2 text-sm font-semibold">Quiz</h3>
-                        <ol className="list-decimal space-y-3 pl-5 text-sm">
-                          {pack.payload.quiz.map((q) => (
-                            <li key={q.q}>
-                              <p className="font-medium">{q.q}</p>
-                              <ul className="mt-1 list-disc pl-4 text-muted-foreground">
+                      <PackSection icon={ListChecks} title="Quiz">
+                        <ol className="list-none space-y-4">
+                          {pack.payload.quiz.map((q, qi) => (
+                            <li
+                              key={q.q}
+                              className="rounded-xl border border-border bg-card p-3"
+                            >
+                              <p className="text-sm font-medium">
+                                <span className="mr-2 text-xs font-semibold text-primary">
+                                  Q{qi + 1}
+                                </span>
+                                {q.q}
+                              </p>
+                              <ul className="mt-2 space-y-1.5 pl-1 text-sm text-muted-foreground">
                                 {q.choices.map((c, i) => (
                                   <li
                                     key={c}
                                     className={
                                       i === q.answerIndex
-                                        ? "font-medium text-primary"
-                                        : undefined
+                                        ? "rounded-md bg-accent px-2 py-1 font-medium text-primary"
+                                        : "px-2 py-1"
                                     }
                                   >
                                     {c}
@@ -197,7 +246,7 @@ function PlayerInner() {
                             </li>
                           ))}
                         </ol>
-                      </section>
+                      </PackSection>
                     </>
                   )}
                 </div>
@@ -214,18 +263,24 @@ function PlayerInner() {
         errorMessage={videoError}
       />
 
-      {hlsUrl ? (
-        <HlsPlayer hlsUrl={hlsUrl} />
-      ) : (
-        <Skeleton className="aspect-video w-full" />
-      )}
+      <div className="overflow-hidden rounded-xl border border-border/80 bg-stone-950 shadow-lg ring-1 ring-black/5">
+        {hlsUrl ? (
+          <HlsPlayer hlsUrl={hlsUrl} />
+        ) : (
+          <Skeleton className="aspect-video w-full rounded-none bg-stone-900" />
+        )}
+      </div>
     </div>
   );
 }
 
 export default function PlayerPage() {
   return (
-    <Suspense fallback={<Skeleton className="aspect-video w-full max-w-5xl" />}>
+    <Suspense
+      fallback={
+        <Skeleton className="aspect-video w-full max-w-5xl rounded-xl" />
+      }
+    >
       <PlayerInner />
     </Suspense>
   );

@@ -51,7 +51,7 @@ class CreateVideoBody {
   grade?: string;
 }
 
-@Controller('api/v1/videos')
+@Controller('videos')
 export class VideosController {
   constructor(
     private readonly pipeline: PipelineService,

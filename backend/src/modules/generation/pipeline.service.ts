@@ -46,6 +46,7 @@ export class PipelineService {
 
   async start(dto: CreateVideoDto): Promise<VideoRecord> {
     const id = uuidv4();
+    const demoMp4 = this.resolveDemoMp4();
     const title =
       dto.purpose === 'teach'
         ? `Class demo: ${dto.topic}`
@@ -56,9 +57,9 @@ export class PipelineService {
       title,
       status: 'processing',
       hlsUrl: `/media/${id}/index.m3u8`,
-      playlistType: 'EVENT',
+      playlistType: demoMp4 ? 'VOD' : 'EVENT',
       scenesReady: 0,
-      scenesTotal: null,
+      scenesTotal: demoMp4 ? 1 : null,
       purpose: dto.purpose,
       topicId: dto.topicId ?? null,
       interestId: dto.interestId ?? null,
@@ -69,7 +70,8 @@ export class PipelineService {
       updatedAt: new Date().toISOString(),
     };
     this.store.save(record);
-    this.packager.ensureVideoDir(id);
+    // Scene pipeline seeds an empty EVENT playlist; MP4 pack overwrites with VOD.
+    this.packager.ensureVideoDir(id, { seedPlaylist: !demoMp4 });
 
     if (dto.purpose === 'teach' && dto.includeLessonPack !== false) {
       const pack = this.lessonPacks.create({
@@ -83,7 +85,10 @@ export class PipelineService {
     }
 
     setImmediate(() => {
-      this.run(id, dto).catch((err) => {
+      const work = demoMp4
+        ? this.runDemoMp4(id, dto, demoMp4)
+        : this.run(id, dto);
+      work.catch((err) => {
         this.logger.error(`Pipeline failed ${id}: ${err}`);
         const cur = this.store.get(id);
         if (cur) {
@@ -96,6 +101,73 @@ export class PipelineService {
     });
 
     return this.store.get(id)!;
+  }
+
+  /**
+   * Demo / HLS test path: when HLS_USE_DEMO_MP4 is auto|true and a source MP4
+   * exists (HLS_DEMO_MP4 or data/demo-source.mp4 or any data/*.mp4), skip TTS
+   * scenes and ffmpeg-pack that file into VOD HLS.
+   */
+  resolveDemoMp4(): string | null {
+    const flag = String(
+      this.config.get('HLS_USE_DEMO_MP4', 'auto'),
+    ).toLowerCase();
+    if (flag === 'false' || flag === '0' || flag === 'off') {
+      return null;
+    }
+
+    const configured = this.config.get<string>('HLS_DEMO_MP4');
+    if (configured && fs.existsSync(configured) && fs.statSync(configured).isFile()) {
+      return path.resolve(configured);
+    }
+
+    const dataDir = path.join(process.cwd(), 'data');
+    const preferred = path.join(dataDir, 'demo-source.mp4');
+    if (fs.existsSync(preferred) && fs.statSync(preferred).isFile()) {
+      return preferred;
+    }
+
+    if (!fs.existsSync(dataDir)) return null;
+    const mp4s = fs
+      .readdirSync(dataDir)
+      .filter((f) => f.toLowerCase().endsWith('.mp4'))
+      .map((f) => path.join(dataDir, f))
+      .filter((p) => fs.statSync(p).isFile());
+    return mp4s[0] ?? null;
+  }
+
+  private async runDemoMp4(
+    videoId: string,
+    dto: CreateVideoDto,
+    mp4Path: string,
+  ): Promise<void> {
+    this.logger.log(`Using demo MP4 for HLS: ${mp4Path}`);
+    const { segmentCount } = await this.packager.packMp4(videoId, mp4Path);
+    const done = this.store.get(videoId)!;
+    done.status = 'ready';
+    done.playlistType = 'VOD';
+    done.scenesReady = 1;
+    done.scenesTotal = 1;
+    done.timeline = {
+      videoId,
+      title: done.title,
+      language: dto.language,
+      scenes: [
+        {
+          id: 1,
+          narration: `Demo HLS from ${path.basename(mp4Path)}`,
+          audioUrl: '',
+          durationMs: Math.max(1000, segmentCount * 4000),
+          visual: { type: 'image', payload: { text: dto.topic } },
+          onScreenText: dto.topic,
+        },
+      ],
+    };
+    done.updatedAt = new Date().toISOString();
+    this.store.save(done);
+    this.logger.log(
+      `Video ${videoId} ready from demo MP4 (${segmentCount} HLS segments)`,
+    );
   }
 
   private async run(videoId: string, dto: CreateVideoDto): Promise<void> {

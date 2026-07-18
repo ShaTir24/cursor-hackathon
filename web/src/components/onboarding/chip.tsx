@@ -24,7 +24,7 @@ export function Chip({ active, onClick, children, testId }: ChipProps) {
         }
       }}
       className={cn(
-        "rounded-full border px-3 py-1.5 text-sm outline-none transition-colors duration-150",
+        "min-h-11 rounded-full border px-3 py-2 text-sm outline-none transition-colors duration-150",
         "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
         active
           ? "border-primary bg-accent text-accent-foreground"

@@ -2,17 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  BookOpen,
-  Home,
-  LogOut,
-  Settings2,
-  Video,
-} from "lucide-react";
+import { BookOpen, Home, LogOut, Settings2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getMe } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
+import { EduReelsLogo } from "@/components/brand/edu-reels-logo";
 import {
   Sidebar,
   SidebarContent,
@@ -56,11 +51,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     "ER";
 
   const complete = Boolean(profile?.onboardingComplete && profile?.role);
-  const modeLabel = profile?.role === "teacher" ? "Teach" : "Learn";
-  const modeHint =
-    profile?.role === "teacher"
-      ? "Class demos and lesson packs"
-      : "Personalized learning reels";
+  const isTeacher = profile?.role === "teacher";
+  const modeLabel = isTeacher ? "Teach" : "Learn";
+  const modeHint = isTeacher
+    ? "Class demos and lesson packs"
+    : "Personalized learning reels";
 
   const primaryNav = complete
     ? [{ href: "/home", label: "Home", icon: Home }]
@@ -81,25 +76,37 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar collapsible="icon">
-        <SidebarHeader className="gap-2 px-3 py-4">
-          <Link href="/home" className="flex items-center gap-2 px-1">
-            <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <Video className="size-4" />
-            </div>
-            <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-              <span className="font-display text-lg leading-none tracking-tight">
-                EduReels
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {complete ? `${modeLabel} workspace` : "Getting started"}
-              </span>
-            </div>
+      <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+        <SidebarHeader className="gap-3 px-3 py-4">
+          <Link
+            href={complete ? "/home" : "/role"}
+            className="flex items-center gap-2 px-1 transition-opacity duration-150 hover:opacity-90"
+          >
+            <EduReelsLogo
+              size="sm"
+              withWordmark
+              className="group-data-[collapsible=icon]:[&>span:last-child]:hidden"
+            />
           </Link>
+          {complete && (
+            <div className="space-y-1.5 px-1 group-data-[collapsible=icon]:hidden">
+              <Badge
+                variant="secondary"
+                className="border border-primary/20 bg-accent font-semibold tracking-wide text-accent-foreground"
+              >
+                {modeLabel}
+              </Badge>
+              <p className="text-xs leading-snug text-muted-foreground">
+                {modeHint}
+              </p>
+            </div>
+          )}
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+            <SidebarGroupLabel>
+              {complete ? "Workspace" : "Get started"}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {primaryNav.map((item) => (
@@ -140,26 +147,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </SidebarGroup>
           )}
         </SidebarContent>
-        <SidebarFooter className="gap-2 p-3">
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-2 group-data-[collapsible=icon]:justify-center">
-            <Avatar className="size-8">
-              <AvatarFallback>{initials}</AvatarFallback>
+        <SidebarFooter className="gap-2 border-t border-sidebar-border p-3">
+          <div className="flex items-center gap-2.5 rounded-lg bg-accent/50 p-2.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0">
+            <Avatar className="size-9 ring-2 ring-primary/15">
+              <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
+                {initials}
+              </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-              <p className="truncate text-sm font-medium">
+              <p className="truncate text-sm font-medium leading-tight">
                 {profile?.displayName ?? "Signed in"}
               </p>
               {profile?.role && (
-                <Badge variant="secondary" className="mt-0.5 capitalize">
+                <p className="mt-0.5 truncate text-xs capitalize text-muted-foreground">
                   {profile.role}
-                </Badge>
+                </p>
               )}
             </div>
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-start"
+            className="w-full justify-start transition-colors duration-150"
             onClick={() => void signOut()}
           >
             <LogOut className="size-4" />
@@ -167,16 +176,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Button>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
-        <header className="flex h-14 items-center gap-2 border-b border-border bg-card/80 px-4 backdrop-blur-sm">
+      <SidebarInset className="edu-mesh-inset">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border/80 bg-card/70 px-4 backdrop-blur-md">
           <SidebarTrigger />
           <Separator orientation="vertical" className="mx-1 h-5" />
           {complete ? (
-            <div className="flex items-baseline gap-2">
+            <div className="flex min-w-0 items-baseline gap-2">
               <span className="text-xs font-semibold uppercase tracking-wide text-primary">
                 {modeLabel}
               </span>
-              <p className="text-sm text-muted-foreground">{modeHint}</p>
+              <p className="truncate text-sm text-muted-foreground">{modeHint}</p>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
@@ -184,7 +193,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </p>
           )}
         </header>
-        <div className="flex-1 p-4 md:p-6">{children}</div>
+        <div className="flex-1 p-4 md:p-8">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

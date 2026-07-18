@@ -53,7 +53,11 @@ export class HlsPackagerService implements OnModuleInit {
     return path.join(this.videoDir(videoId), 'index.m3u8');
   }
 
-  ensureVideoDir(videoId: string): string {
+  ensureVideoDir(
+    videoId: string,
+    options: { seedPlaylist?: boolean } = {},
+  ): string {
+    const { seedPlaylist = true } = options;
     const dir = this.videoDir(videoId);
     fs.mkdirSync(dir, { recursive: true });
     if (!this.writers.has(videoId)) {
@@ -61,9 +65,13 @@ export class HlsPackagerService implements OnModuleInit {
         videoId,
         new PlaylistWriter(this.playlistPath(videoId), this.targetDurationSec),
       );
-      // Seed empty EVENT playlist so clients can attach early
+      // Seed empty EVENT playlist so clients can attach early (scene pipeline)
       const w = this.writers.get(videoId)!;
-      if (w.segmentCount === 0 && !fs.existsSync(this.playlistPath(videoId))) {
+      if (
+        seedPlaylist &&
+        w.segmentCount === 0 &&
+        !fs.existsSync(this.playlistPath(videoId))
+      ) {
         fs.writeFileSync(
           this.playlistPath(videoId),
           [
@@ -78,6 +86,77 @@ export class HlsPackagerService implements OnModuleInit {
       }
     }
     return dir;
+  }
+
+  /**
+   * Transcode a source MP4 into VOD HLS under HLS_ROOT/{videoId}/.
+   * Used for demo/fixture playback (e.g. data/demo-source.mp4).
+   */
+  async packMp4(
+    videoId: string,
+    mp4Path: string,
+  ): Promise<{ playlistPath: string; segmentCount: number }> {
+    await this.assertFfmpeg();
+    if (!fs.existsSync(mp4Path) || !fs.statSync(mp4Path).isFile()) {
+      throw new Error(`Demo MP4 missing: ${mp4Path}`);
+    }
+
+    const dir = this.ensureVideoDir(videoId, { seedPlaylist: false });
+    // Clear any prior segments/playlist for this id
+    for (const name of fs.readdirSync(dir)) {
+      if (name.endsWith('.ts') || name.endsWith('.m3u8')) {
+        fs.unlinkSync(path.join(dir, name));
+      }
+    }
+    this.writers.delete(videoId);
+
+    const playlist = path.join(dir, 'index.m3u8');
+    const segmentPattern = path.join(dir, 'seg_%04d.ts');
+
+    await this.runFfmpeg([
+      '-y',
+      '-i',
+      mp4Path,
+      '-vf',
+      'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2',
+      '-c:v',
+      'libx264',
+      '-preset',
+      'veryfast',
+      '-pix_fmt',
+      'yuv420p',
+      '-c:a',
+      'aac',
+      '-b:a',
+      '128k',
+      '-ac',
+      '2',
+      '-ar',
+      '44100',
+      '-f',
+      'hls',
+      '-hls_time',
+      String(Math.max(2, Math.floor(this.targetDurationSec))),
+      '-hls_playlist_type',
+      'vod',
+      '-hls_segment_filename',
+      segmentPattern,
+      '-hls_flags',
+      'independent_segments',
+      playlist,
+    ]);
+
+    if (!fs.existsSync(playlist)) {
+      throw new Error(`ffmpeg did not write playlist at ${playlist}`);
+    }
+
+    const segmentCount = fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith('.ts')).length;
+    this.logger.log(
+      `Packed MP4 → HLS for ${videoId} (${segmentCount} segments) from ${mp4Path}`,
+    );
+    return { playlistPath: playlist, segmentCount };
   }
 
   /** Serializes pack operations per videoId (ordered publish). */

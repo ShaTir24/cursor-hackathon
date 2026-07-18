@@ -2,7 +2,7 @@ import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { CurrentUser, type AuthUser } from '../auth/jwt-auth.guard';
 import { LessonPackService } from './lesson-pack.service';
 
-@Controller('api/v1/lesson-packs')
+@Controller('lesson-packs')
 export class LessonPacksController {
   constructor(private readonly packs: LessonPackService) {}
 
