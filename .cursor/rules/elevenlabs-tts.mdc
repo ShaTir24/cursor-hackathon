@@ -1,0 +1,14 @@
+---
+description: ElevenLabs TTS conventions for EduReels generation
+globs: ["backend/src/modules/generation/**"]
+alwaysApply: false
+---
+
+# ElevenLabs TTS
+
+- Follow agent skill: `.cursor/skills/elevenlabs/text-to-speech/SKILL.md`
+- API key setup: `.cursor/skills/elevenlabs/setup-api-key/SKILL.md`
+- Model: `eleven_flash_v2_5` only (credit conservation)
+- Only `TtsService` may call ElevenLabs; use `@elevenlabs/elevenlabs-js` (not the deprecated `elevenlabs` package)
+- Cache by sha256(text+voiceId+model); fixtures when `NODE_ENV=test|dev-offline`
+- Enforce `TTS_DAILY_CHAR_BUDGET` before live synth

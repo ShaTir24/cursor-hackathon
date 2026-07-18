@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+Always respond strictly in English.
+Never use Hinglish, Hindi, Gujarati, or mixed-language wording unless explicitly requested.
+If the user writes in Hinglish, understand it and reply in English only.
