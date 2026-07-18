@@ -17,9 +17,23 @@ export type Theme = {
   vibe: string;
 };
 
+export type LearningPriority = {
+  topicId: string;
+  priority: number;
+  complexConcepts: string[];
+  videoPattern: string;
+};
+
+export type AgeLearningProfile = {
+  trendingInterests: string[];
+  contentGuidance: string;
+  priorities: LearningPriority[];
+};
+
 export type Catalogue = {
   ageGroups: AgeGroup[];
   topics: Topic[];
+  learningPrioritiesByAgeGroup: Record<string, AgeLearningProfile>;
   themesByAgeGroup: Record<string, Theme[]>;
 };
 
