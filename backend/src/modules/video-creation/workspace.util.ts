@@ -1,4 +1,11 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+  type Dirent,
+} from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 /** Walk up from `start` looking for a directory that contains `.cursor/skills`. */
@@ -97,21 +104,25 @@ const INDEX_RE = /^\d+$/;
 function findNewestMp4(dir: string, depth = 3): string | null {
   let newest: { path: string; mtime: number } | null = null;
   const walk = (current: string, level: number): void => {
-    let entries: ReturnType<typeof readdirSync>;
+    let entries: Dirent[];
     try {
-      entries = readdirSync(current, { withFileTypes: true });
+      entries = readdirSync(current, {
+        withFileTypes: true,
+        encoding: 'utf8',
+      });
     } catch {
       return;
     }
     for (const entry of entries) {
-      const full = join(current, entry.name);
+      const name = entry.name;
+      const full = join(current, name);
       if (entry.isDirectory()) {
         if (level <= 0) continue;
-        if (['node_modules', '.git', 'frames', '.cursor'].includes(entry.name))
+        if (['node_modules', '.git', 'frames', '.cursor'].includes(name))
           continue;
-        if (/^frames_/.test(entry.name)) continue;
+        if (/^frames_/.test(name)) continue;
         walk(full, level - 1);
-      } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.mp4')) {
+      } else if (entry.isFile() && name.toLowerCase().endsWith('.mp4')) {
         const mtime = statSync(full).mtimeMs;
         if (!newest || mtime > newest.mtime) newest = { path: full, mtime };
       }

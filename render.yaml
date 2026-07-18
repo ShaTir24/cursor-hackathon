@@ -1,30 +1,263 @@
+##############################################################################
+# EduReels — MANUAL Render deploy checklist (do NOT use New → Blueprint)
+#
+# Live services (Tirth Shah's Workspace / tea-csps8ci3esus73cq2ee0):
+#   • edureels-api  → Web Service (Docker)  https://edureels-api.onrender.com
+#   • edureels-web  → Static Site           https://edureels-web.onrender.com
+#
+# Repo: https://github.com/ShaTir24/cursor-hackathon  ·  branch: main
+##############################################################################
+
+# =============================================================================
+# SERVICE 1 — Backend API  (Dashboard: New → Web Service  OR existing edureels-api)
+# =============================================================================
+# Name:                       edureels-api
+# Region:                     Oregon
+# Branch:                     main
+# Runtime / Language:         Docker
+# Root Directory:             (leave EMPTY — use repo root)
+# Dockerfile Path:            ./Dockerfile
+# Docker Build Context Dir:   .          (exactly a dot — not "$ ." )
+# Docker Command:             (leave EMPTY — use Dockerfile CMD)
+# Health Check Path:          /health
+# Instance:                   Free (no disk) OR Starter+ with disk for HLS
+# Disk (optional, paid):      name=edureels-media, mountPath=/data, size=5 GB
+# Auto-Deploy:                Yes
+#
+# Dockerfile runs:
+#   apt (ffmpeg + curl) → install Cursor Agent CLI (`agent` / `cursor-agent`)
+#   → npm ci → npm run build → npm prune
+# Binaries on PATH: agent, cursor-agent (auth via CURSOR_API_KEY at runtime)
+
+# --- Environment variables (API → Environment) ---
+# NODE_ENV=production
+# PORT=3000
+# HLS_ROOT=/data/hls
+# TTS_CACHE_DIR=/data/tts-cache
+# FFMPEG_PATH=ffmpeg
+# TTS_DAILY_CHAR_BUDGET=50000
+# ELEVENLABS_MODEL=eleven_flash_v2_5
+# TTS_FORCE_FIXTURES=false
+# AUTH_DEV_BYPASS=false
+# EXA_ENABLED=true
+#
+# FRONTEND_URL=https://edureels-web.onrender.com
+#
+# CURSOR_API_KEY=YOUR_CURSOR_API_KEY
+#   ↑ https://cursor.com/dashboard/integrations — required for video generation
+# VIDEO_CREATION_API_KEY=YOUR_SHARED_SECRET
+# MIXAMO_ACCESS_TOKEN=                       # optional, 3D reels
+#
+# SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+# SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+# SUPABASE_JWT_SECRET=YOUR_JWT_SECRET
+# ELEVENLABS_API_KEY=YOUR_KEY
+# ELEVENLABS_VOICE_ID=YOUR_VOICE_ID
+# EXA_API_KEY=YOUR_KEY
+
+# =============================================================================
+# SERVICE 2 — Frontend  (Dashboard: New → Static Site  OR existing edureels-web)
+# =============================================================================
+# Name:               edureels-web
+# Region:             Oregon (same as API)
+# Branch:             main
+# Root Directory:     web          ← REQUIRED (different from API)
+# Publish Directory:  ./out
+# Auto-Deploy:        Yes
+# URL:                https://edureels-web.onrender.com
+#
+# Build Command (paste as one command — forces static export on Render only):
+#
+#   set -e
+#   npm ci
+#   node <<'NODE'
+#   const fs = require("fs");
+#   const path = require("path");
+#   const cfgPath = "next.config.ts";
+#   let cfg = fs.readFileSync(cfgPath, "utf8");
+#   cfg = cfg.replace(
+#     /output:\s*["']standalone["']/,
+#     'output: "export",\n  images: { unoptimized: true }',
+#   );
+#   if (!cfg.includes('output: "export"') && !cfg.includes("output: 'export'")) {
+#     throw new Error("could not set output: export in next.config.ts");
+#   }
+#   fs.writeFileSync(cfgPath, cfg);
+#   const layoutPath = path.join("src", "app", "(app)", "player", "[id]", "layout.tsx");
+#   fs.mkdirSync(path.dirname(layoutPath), { recursive: true });
+#   fs.writeFileSync(
+#     layoutPath,
+#     [
+#       'import type { ReactNode } from "react";',
+#       "",
+#       "export function generateStaticParams() {",
+#       '  return [{ id: "_" }];',
+#       "}",
+#       "",
+#       "export default function PlayerIdLayout({",
+#       "  children,",
+#       "}: {",
+#       "  children: ReactNode;",
+#       "}) {",
+#       "  return children;",
+#       "}",
+#       "",
+#     ].join("\n"),
+#   );
+#   NODE
+#   npm run build
+#   test -d out
+#
+# Redirects / Rewrites:
+#   Type: Rewrite
+#   Source: /player/*
+#   Destination: /player/_/index.html
+
+# --- Environment variables (Static Site → Environment) ---
+# NODE_VERSION=22.14.0
+# NEXT_TELEMETRY_DISABLED=1
+# NEXT_PUBLIC_AUTH_DEV_BYPASS=false
+# NEXT_PUBLIC_API_BASE=https://edureels-api.onrender.com
+# NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY
+#
+# After changing NEXT_PUBLIC_* values, Manual Deploy the static site
+# (they are baked in at build time).
+
+# =============================================================================
+# Root directory reminder
+# =============================================================================
+# API  Root Directory:  (empty)     Dockerfile at repo root needs backend/
+# Web  Root Directory:  web         Next.js app lives under web/
+
+# =============================================================================
+# Supabase → Authentication → URL Configuration
+# =============================================================================
+# Site URL:       https://edureels-web.onrender.com
+# Redirect URLs:  https://edureels-web.onrender.com/auth/callback
+##############################################################################
+
+# Optional Blueprint stub (unused when deploying manually). Kept so editors
+# that expect a services: key still validate. Prefer Dashboard settings above.
 services:
   - type: web
     name: edureels-api
     runtime: docker
-    dockerfilePath: ./Dockerfile
     plan: starter
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /health
+    autoDeployTrigger: commit
+    disk:
+      name: edureels-media
+      mountPath: /data
+      sizeGB: 5
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: "3000"
       - key: HLS_ROOT
         value: /data/hls
       - key: TTS_CACHE_DIR
         value: /data/tts-cache
+      - key: FFMPEG_PATH
+        value: ffmpeg
       - key: TTS_DAILY_CHAR_BUDGET
         value: "50000"
       - key: ELEVENLABS_MODEL
         value: eleven_flash_v2_5
+      - key: TTS_FORCE_FIXTURES
+        value: "false"
+      - key: AUTH_DEV_BYPASS
+        value: "false"
+      - key: EXA_ENABLED
+        value: "true"
+      - key: FRONTEND_URL
+        value: https://edureels-web.onrender.com
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
       - key: ELEVENLABS_API_KEY
         sync: false
       - key: ELEVENLABS_VOICE_ID
         sync: false
       - key: EXA_API_KEY
         sync: false
-      - key: EXA_ENABLED
-        value: "true"
-    disk:
-      name: edureels-media
-      mountPath: /data
-      sizeGB: 5
+      - key: CURSOR_API_KEY
+        sync: false
+      - key: VIDEO_CREATION_API_KEY
+        sync: false
+      - key: MIXAMO_ACCESS_TOKEN
+        sync: false
+
+  - type: web
+    name: edureels-web
+    runtime: static
+    region: oregon
+    branch: main
+    rootDir: web
+    autoDeployTrigger: commit
+    buildCommand: |
+      set -e
+      npm ci
+      node <<'NODE'
+      const fs = require("fs");
+      const path = require("path");
+      const cfgPath = "next.config.ts";
+      let cfg = fs.readFileSync(cfgPath, "utf8");
+      cfg = cfg.replace(
+        /output:\s*["']standalone["']/,
+        'output: "export",\n  images: { unoptimized: true }',
+      );
+      if (!cfg.includes('output: "export"') && !cfg.includes("output: 'export'")) {
+        throw new Error("could not set output: export in next.config.ts");
+      }
+      fs.writeFileSync(cfgPath, cfg);
+      const layoutPath = path.join("src", "app", "(app)", "player", "[id]", "layout.tsx");
+      fs.mkdirSync(path.dirname(layoutPath), { recursive: true });
+      fs.writeFileSync(
+        layoutPath,
+        [
+          'import type { ReactNode } from "react";',
+          "",
+          "export function generateStaticParams() {",
+          '  return [{ id: "_" }];',
+          "}",
+          "",
+          "export default function PlayerIdLayout({",
+          "  children,",
+          "}: {",
+          "  children: ReactNode;",
+          "}) {",
+          "  return children;",
+          "}",
+          "",
+        ].join("\n"),
+      );
+      NODE
+      npm run build
+      test -d out
+    staticPublishPath: ./out
+    routes:
+      - type: rewrite
+        source: /player/*
+        destination: /player/_/index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "22.14.0"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: NEXT_PUBLIC_AUTH_DEV_BYPASS
+        value: "false"
+      - key: NEXT_PUBLIC_API_BASE
+        value: https://edureels-api.onrender.com
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
