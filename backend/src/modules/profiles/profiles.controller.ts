@@ -34,19 +34,19 @@ class OnboardingBody {
   @ValidateIf((o: OnboardingBody) => o.role === 'student')
   @IsArray()
   @ArrayMinSize(2)
-  @IsUUID('4', { each: true })
+  @IsUUID('all', { each: true })
   topicIds?: string[];
 
   @ValidateIf((o: OnboardingBody) => o.role === 'student')
   @IsArray()
   @ArrayMinSize(2)
-  @IsUUID('4', { each: true })
+  @IsUUID('all', { each: true })
   interestIds?: string[];
 
   @ValidateIf((o: OnboardingBody) => o.role === 'teacher')
   @IsArray()
   @ArrayMinSize(1)
-  @IsUUID('4', { each: true })
+  @IsUUID('all', { each: true })
   subjectIds?: string[];
 
   @ValidateIf((o: OnboardingBody) => o.role === 'teacher')

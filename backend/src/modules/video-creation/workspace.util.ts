@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 /** Walk up from `start` looking for a directory that contains `.cursor/skills`. */
@@ -51,18 +51,18 @@ function resolveSkillsSource(): string | null {
  * scripts). Override with VIDEO_WORKSPACES_DIR for an absolute path to the
  * video-workspaces parent (or the video-workspaces folder itself).
  */
-export function createNextWorkspace(username: string): string {
+/** Absolute path to the `video-workspaces` parent (honors VIDEO_WORKSPACES_DIR). */
+export function resolveWorkspacesRoot(): string {
   const override = process.env.VIDEO_WORKSPACES_DIR?.trim();
-  let workspacesRoot: string;
   if (override) {
     const abs = resolve(override);
-    workspacesRoot = abs.endsWith('video-workspaces')
-      ? abs
-      : join(abs, 'video-workspaces');
-  } else {
-    workspacesRoot = join(resolveProjectRoot(), 'video-workspaces');
+    return abs.endsWith('video-workspaces') ? abs : join(abs, 'video-workspaces');
   }
+  return join(resolveProjectRoot(), 'video-workspaces');
+}
 
+export function createNextWorkspace(username: string): string {
+  const workspacesRoot = resolveWorkspacesRoot();
   const userDir = join(workspacesRoot, username);
   mkdirSync(userDir, { recursive: true });
 
@@ -88,4 +88,59 @@ export function createNextWorkspace(username: string): string {
   }
 
   return workspace;
+}
+
+const USERNAME_RE = /^[a-zA-Z0-9_-]+$/;
+const INDEX_RE = /^\d+$/;
+
+/** Find the newest `*.mp4` under `dir` (shallow-recursive, skips heavy dirs). */
+function findNewestMp4(dir: string, depth = 3): string | null {
+  let newest: { path: string; mtime: number } | null = null;
+  const walk = (current: string, level: number): void => {
+    let entries: ReturnType<typeof readdirSync>;
+    try {
+      entries = readdirSync(current, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const full = join(current, entry.name);
+      if (entry.isDirectory()) {
+        if (level <= 0) continue;
+        if (['node_modules', '.git', 'frames', '.cursor'].includes(entry.name))
+          continue;
+        if (/^frames_/.test(entry.name)) continue;
+        walk(full, level - 1);
+      } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.mp4')) {
+        const mtime = statSync(full).mtimeMs;
+        if (!newest || mtime > newest.mtime) newest = { path: full, mtime };
+      }
+    }
+  };
+  walk(dir, depth);
+  return newest ? (newest as { path: string }).path : null;
+}
+
+/**
+ * Resolve the deliverable video for `<username>/<index>`.
+ * Prefers the canonical `output.mp4` at the workspace root; falls back to the
+ * newest `*.mp4` produced anywhere inside the workspace.
+ * Returns `null` when the username/index are invalid or nothing is found.
+ */
+export function resolveWorkspaceOutput(
+  username: string,
+  index: string,
+): string | null {
+  if (!USERNAME_RE.test(username) || !INDEX_RE.test(index)) return null;
+
+  const root = resolveWorkspacesRoot();
+  const workspace = resolve(join(root, username, index));
+  const rootWithSep = root.endsWith('/') ? root : `${root}/`;
+  if (!workspace.startsWith(rootWithSep)) return null; // path traversal guard
+  if (!existsSync(workspace)) return null;
+
+  const canonical = join(workspace, 'output.mp4');
+  if (existsSync(canonical) && statSync(canonical).isFile()) return canonical;
+
+  return findNewestMp4(workspace);
 }

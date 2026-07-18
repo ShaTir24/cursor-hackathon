@@ -239,6 +239,15 @@ Optional music after picture+VO lock: `POST /v1/music/video-to-music`, mixed wel
 
 Delete `outputs/frames_*` after encode.
 
+**FINAL DELIVERY (required):** copy the finished muxed MP4 to **`output.mp4` at the root of your agent workspace** — the directory shown as `cwd` when the agent started (e.g. `video-workspaces/{username}/{n}/output.mp4`). This is the canonical artifact the MentorScroll backend serves and the web app plays. Because `npm run render` runs from inside `mentorscroll-reel-2d/`, use an absolute path back to the workspace root so the copy is unambiguous:
+
+```bash
+# WORKSPACE_ROOT = the agent's starting cwd (video-workspaces/{username}/{n})
+cp "outputs/mentorscroll2d_{topic}_with_vo_{ts}.mp4" "$WORKSPACE_ROOT/output.mp4"
+```
+
+Do not skip this step and do not nest the file in a subfolder — the deliverable must be `output.mp4` directly in the workspace root.
+
 ### 8. Director's review (required before delivering)
 
 Read the smoke screenshots at ~10% / 40% / 70% **against the shot list + UI recipe** and check:
@@ -362,6 +371,8 @@ mentorscroll-reel-2d/
 outputs/
   audio/                          # vo + alignment json
   mentorscroll2d_*.mp4
+video-workspaces/{username}/{n}/
+  output.mp4                      # FINAL deliverable — copied here for the backend to serve
 ```
 
 ## Hard requirements
@@ -377,6 +388,7 @@ outputs/
 - Every sprite on screen has a stated meaning in the cast table
 - Portrait 1080×1920; captions readable in lower safe area; deterministic `frameAt(t)`
 - HTML/CSS chrome implemented to match the recipe (not diagram-only restyle)
+- Final muxed MP4 copied to `output.mp4` at the workspace root (backend deliverable)
 
 ## Pitfalls
 

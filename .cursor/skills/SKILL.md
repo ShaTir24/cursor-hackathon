@@ -21,6 +21,7 @@ description: >-
 
 - Portrait **1080×1920**, 30–60s (default 45)
 - Render via Playwright + FFmpeg → `outputs/`
+- **Final deliverable (required):** copy the finished MP4 to **`output.mp4` at the root of the agent workspace** (the `cwd` the agent started in, e.g. `video-workspaces/{username}/{n}/output.mp4`). The MentorScroll backend serves this file and the web app plays it. Do not nest it in a subfolder.
 - Always brainstorm **3 hook options** and **write a plan** before locking (unless user already locked one)
 - **2D:** each option picks a distinct **UI recipe** (stage/header/callout/caption) so reels don't reuse the same chrome — see [mentorscroll-2d](mentorscroll-2d/SKILL.md)
 

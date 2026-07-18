@@ -14,13 +14,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
 const OUT_DIR = path.join(ROOT, '..', 'outputs')
 const PORT = 5178
-const TOPIC = 'cap_theorem_marvel'
+const TOPIC = 'special_relativity'
 
 function mime(p) {
   if (p.endsWith('.html')) return 'text/html'
   if (p.endsWith('.js') || p.endsWith('.mjs')) return 'text/javascript'
   if (p.endsWith('.css')) return 'text/css'
   if (p.endsWith('.png')) return 'image/png'
+  if (p.endsWith('.jpg') || p.endsWith('.jpeg')) return 'image/jpeg'
   if (p.endsWith('.svg')) return 'image/svg+xml'
   if (p.endsWith('.json')) return 'application/json'
   return 'application/octet-stream'

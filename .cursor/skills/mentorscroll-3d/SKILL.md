@@ -193,7 +193,15 @@ outputs/                 # final mp4/webm (+ smoke png)
 ## Output Location
 - **MP4**: `outputs/mentorscroll_{topic}_{timestamp}.mp4`
 - **WebM**: `outputs/mentorscroll_{topic}_{timestamp}.webm`
+- **FINAL DELIVERY (required):** copy the finished MP4 to **`output.mp4` at the root of the agent workspace** (the `cwd` the agent started in, e.g. `video-workspaces/{username}/{n}/output.mp4`). The MentorScroll backend serves this file and the web app plays it. Since render runs from inside `mentorscroll-reel/`, copy back to the workspace root with an absolute path:
+
+```bash
+# WORKSPACE_ROOT = the agent's starting cwd (video-workspaces/{username}/{n})
+cp "outputs/mentorscroll_{topic}_{timestamp}.mp4" "$WORKSPACE_ROOT/output.mp4"
+```
+
 - Do **not** keep large `frames_*` directories after encode unless debugging
+- Do **not** nest the deliverable in a subfolder — it must be `output.mp4` directly in the workspace root
 
 ## Technical Requirements
 - Node.js + Three.js + Playwright + FFmpeg

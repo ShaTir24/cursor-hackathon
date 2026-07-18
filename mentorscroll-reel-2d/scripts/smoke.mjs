@@ -16,6 +16,8 @@ function mime(p) {
   if (p.endsWith('.js') || p.endsWith('.mjs')) return 'text/javascript'
   if (p.endsWith('.css')) return 'text/css'
   if (p.endsWith('.png')) return 'image/png'
+  if (p.endsWith('.jpg') || p.endsWith('.jpeg')) return 'image/jpeg'
+  if (p.endsWith('.svg')) return 'image/svg+xml'
   return 'application/octet-stream'
 }
 
@@ -51,7 +53,7 @@ async function main() {
   const times = [0.1, 0.4, 0.7].map((p) => p * duration)
   for (const t of times) {
     await page.evaluate((time) => window.__MS.frameAt(time), t)
-    const out = path.join(OUT_DIR, `smoke_2d_cap_theorem_marvel_${String(t.toFixed(1)).replace('.', '_')}.png`)
+    const out = path.join(OUT_DIR, `smoke_2d_special_relativity_${String(t.toFixed(1)).replace('.', '_')}.png`)
     await page.locator('#stage').screenshot({ path: out, type: 'png' })
     console.log('wrote', out)
   }

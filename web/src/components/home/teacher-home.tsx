@@ -7,6 +7,7 @@ import { Sparkles } from "lucide-react";
 import { createVideo } from "@/lib/api";
 import { listRecent, pushRecent, type RecentVideo } from "@/lib/recent-videos";
 import type { Profile } from "@/lib/types";
+import { CreateWithAI } from "@/components/home/create-with-ai";
 import { EduReelsLogo } from "@/components/brand/edu-reels-logo";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -101,6 +102,11 @@ export function TeacherHome({ profile }: Props) {
           )}
         </div>
       </section>
+
+      <CreateWithAI
+        username={profile.userId}
+        placeholder="e.g. A 45-second class demo on photosynthesis for grade 8, with a quick recap quiz."
+      />
 
       {error && (
         <Alert variant="destructive" data-motion>
