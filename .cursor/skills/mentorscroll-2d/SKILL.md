@@ -4,9 +4,10 @@ description: >-
   Builds MentorScroll 2D educational reels (Kenney sprites + SVG diagrams) with
   a director-grade shot list per beat, a varied UI-kit recipe (so reels don't
   reuse the same chrome), Kenney-only asset casting verified against inventory,
-  ElevenLabs voice selection, TTS with timestamps, forced alignment, and
-  Playwright+FFmpeg MP4. Use for 2D reels, flat illustrations, Kenney/SVG
-  overlays, or synced narration/captions via ELEVENLABS_API_KEY.
+  Exa web research + real-world imagery sourcing, ElevenLabs voice selection,
+  TTS with timestamps, forced alignment, and Playwright+FFmpeg MP4. Use for 2D
+  reels, flat illustrations, Kenney/SVG overlays, web-sourced imagery via
+  EXA_API_KEY, or synced narration/captions via ELEVENLABS_API_KEY.
 ---
 
 # MentorScroll 2D Video Skill
@@ -15,13 +16,17 @@ description: >-
 
 Produces a 30–60s portrait (1080×1920) educational reel:
 
-1. **Plan** (required) — storyboard + **UI recipe** + **director shot list** + **asset cast** + voice + narration
-2. **Audio** — ElevenLabs voices → TTS (+ timestamps) → forced alignment
-3. **Visuals** — Kenney CC0 sprites + SVG diagrams/callouts, staged per shot list **and** the locked UI recipe
-4. **Render** — Playwright frames + FFmpeg → MP4/WebM, mux VO (+ optional music)
+1. **Research** — Exa web search to fact-check the topic and source real-world imagery the reel needs
+2. **Plan** (required) — storyboard + **UI recipe** + **director shot list** + **asset cast** + voice + narration
+3. **Audio** — ElevenLabs voices → TTS (+ timestamps) → forced alignment
+4. **Visuals** — Kenney CC0 sprites + SVG diagrams/callouts + Exa-sourced web imagery, staged per shot list **and** the locked UI recipe
+5. **Render** — Playwright frames + FFmpeg → MP4/WebM, mux VO (+ optional music)
 
-**Auth:** load `ELEVENLABS_API_KEY` from project root `.env`. Header: `xi-api-key`.  
-API details: [elevenlabs-audio.md](elevenlabs-audio.md)
+**Auth:**
+- `ELEVENLABS_API_KEY` from project root `.env` (header `xi-api-key`) — voice/TTS. API details: [elevenlabs-audio.md](elevenlabs-audio.md)
+- `EXA_API_KEY` from project root `.env` (header `x-api-key`) — web research + imagery. API details: [exa-search.md](exa-search.md)
+
+Both keys are provided to the spawned agent via its environment; read them with `process.env`.
 
 ## When to Trigger
 
@@ -153,6 +158,17 @@ node kenney_downloader/downloadPacks.mjs
 Skim inventory `files` before storyboarding so options are written against sprites that actually exist.
 
 Also skim recent `mentorscroll-reel-2d/plans/*.md` **UI recipe** lines so brainstorm options don't repeat chrome.
+
+### 2.5. Research topic + source web imagery (Exa)
+
+Use `EXA_API_KEY` (header `x-api-key`) to ground the reel before writing narration. See [exa-search.md](exa-search.md).
+
+1. **Fact-check:** `POST https://api.exa.ai/search` with the topic → read result `text` to confirm facts, dates, and diagram labels. Record 2–3 `url`s in the plan under **Research sources**.
+2. **Find imagery:** for any real-world subject the topic needs that Kenney/SVG can't provide (a person, place, product, event), query Exa for images, read the `image` field, and pick clean, on-topic, usably-licensed images.
+3. **Download:** save chosen images to `mentorscroll-reel-2d/assets/web/` and record each one's source URL in the plan.
+4. Web images are **hero/background** elements (still one focal per beat), framed by the locked UI recipe — they support the Kenney cast, never replace it.
+
+If `EXA_API_KEY` is unset or Exa fails: note it in the plan, skip web imagery, and build from Kenney + SVG. Never invent facts to cover a failed search.
 
 ### 3. Select voice (ElevenLabs)
 
@@ -297,15 +313,22 @@ Option {N} — {one-line reason including look}
 | 1 | Hook | "WAIT" badge pulse | badge → character point → caption | badge pulse ×2, character lean-in | fast cut ≤4s | quiet zone per recipe | callout label "WAIT" |
 | 2 | Law 1 | puck sliding on track | puck → force arrow appears → caption | puck slides L→R, arrow slams in at cue word | hold, 1 event | sides of track clear | callout → "LAW 1" |
 
+## Research sources (Exa)
+
+- {url 1} — {what it confirmed}
+- {url 2} — {what it confirmed}
+(or "EXA_API_KEY unset / Exa failed — built from base knowledge")
+
 ## Asset cast (verified against inventory — real paths only)
 
-| # | Role | Sprite path (relative to kenney/assets/) | Meaning in beat |
-|---|------|-------------------------------------------|-----------------|
-| 1 | UI accent | shape-characters/PNG/Default/tile_exclamation.png | urgency badge |
-| all | Character | shape-characters/PNG/Default/blue_body_squircle.png (+face, +hand) | teacher |
-| 2 | Support | game-icons/PNG/White/2x/arrowRight.png | applied force |
+| # | Role | Path | Meaning in beat | Source |
+|---|------|------|-----------------|--------|
+| 1 | UI accent | shape-characters/PNG/Default/tile_exclamation.png | urgency badge | Kenney |
+| all | Character | shape-characters/PNG/Default/blue_body_squircle.png (+face, +hand) | teacher | Kenney |
+| 2 | Support | game-icons/PNG/White/2x/arrowRight.png | applied force | Kenney |
+| 3 | Web (Exa) | assets/web/{file}.jpg | real subject in hero zone | {source URL} |
 
-Verified: `node -e …` (paste check output or "cast ok: N")
+Verified: `node -e …` (paste check output or "cast ok: N"). Every `Web (Exa)` row must list its source URL.
 
 ## Audio artifacts
 - VO: outputs/audio/{topic}_vo.mp3
@@ -320,19 +343,22 @@ Verified: `node -e …` (paste check output or "cast ok: N")
 
 ## Asset policy
 
-1. **Kenney only** for sprites — cast from `kenney/assets/**/inventory.json`, verified paths
+1. **Kenney only** for sprites/icons/mascot — cast from `kenney/assets/**/inventory.json`, verified paths
 2. **SVG** for formulas, arrows-with-meaning, graphs, force diagrams (drawn in diagram layer)
-3. **Freepik** — optional manual drop-ins in `assets/freepik/` only; never required
+3. **Web imagery via Exa** — real-world subjects only (person/place/product/event) that Kenney/SVG can't provide. Download to `mentorscroll-reel-2d/assets/web/`, reference with `W('{file}')`, record source URL + role `Web (Exa)` in the cast table. Prefer public-domain/CC/official; if licensing is unclear, redraw as SVG. Never use Exa images in place of a Kenney sprite. See [exa-search.md](exa-search.md).
+4. **Freepik** — optional manual drop-ins in `assets/freepik/` only; never required
 
 ## Project layout
 
 ```
-.env                              # ELEVENLABS_API_KEY
+.env                              # ELEVENLABS_API_KEY, EXA_API_KEY
 kenney/assets/                    # packs + inventory.json (source of truth for casting)
 kenney_downloader/
 mentorscroll-reel-2d/
   plans/                          # plan + UI recipe + shot list + asset cast (required)
   public/ src/ scripts/           # chrome (html/css) must match locked UI recipe
+  assets/kenney/                  # synced Kenney sprites (via sync-assets)
+  assets/web/                     # Exa-sourced real-world imagery (source URLs logged in plan)
 outputs/
   audio/                          # vo + alignment json
   mentorscroll2d_*.mp4
@@ -341,6 +367,8 @@ outputs/
 ## Hard requirements
 
 - Plan with **complete UI recipe + shot list + verified asset cast** written before scene code / render
+- Topic fact-checked via **Exa** (`EXA_API_KEY`) with research sources logged (or the failure noted)
+- Real-world subjects sourced as **Exa web imagery** into `assets/web/` with source URLs, framed by the UI recipe (Kenney remains the sprite/icon source)
 - Three brainstorm options use **three different UI recipes**
 - Locked recipe passes **anti-sameness** vs the 2–3 most recent plans
 - Voice chosen via `GET /v1/voices` (or explicit user `voice_id`)
@@ -363,6 +391,9 @@ outputs/
 | VO shorter than video | Set DURATION to audio length |
 | Frozen motion | Drive transforms from `frameAt(t)` |
 | Missing API key | Fail voice step loudly; do not silent-skip VO |
+| Invented facts / wrong dates | Fact-check with Exa first; log research source URLs in the plan |
+| Raw web photo dropped on stage | Frame Exa imagery with the UI recipe (card/poster/lower-third); one focal per beat |
+| Exa image of unclear license shipped | Redraw as SVG or recast; only ship public-domain/CC/official, with source URL logged |
 | Options differ only in hook copy | Force each option onto a different UI recipe from the menu |
 | Copied previous `styles.css` shell | Treat leftover arena HUD as a failed UI recipe test |
 

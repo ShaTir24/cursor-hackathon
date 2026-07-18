@@ -3,21 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>MentorScroll 2D — Freedom Fighters · Origin Cards</title>
+    <title>MentorScroll 2D — CAP Theorem · Marvel Personas</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div id="stage">
       <div id="bg"></div>
 
-      <div id="hud">
-        <div id="hud-title">FREEDOM SQUAD</div>
-        <div id="hud-sub">ORIGIN CARDS · INDIA</div>
-      </div>
+      <!-- header: none — title lives in diagram / corner-tab -->
 
       <div id="callout"><span id="callout-text"></span></div>
 
       <div id="diagram" aria-hidden="true"></div>
+
+      <div id="caption">
+        <div id="caption-inner"></div>
+      </div>
 
       <div id="actor">
         <img id="body" alt="" />
@@ -25,8 +26,14 @@
         <img id="hand" alt="" />
       </div>
 
-      <div id="caption"><div id="caption-inner"></div></div>
-      <div id="progress"><i></i></div>
+      <div id="progress" aria-hidden="true">
+        <span data-i="0"></span>
+        <span data-i="1"></span>
+        <span data-i="2"></span>
+        <span data-i="3"></span>
+        <span data-i="4"></span>
+        <span data-i="5"></span>
+      </div>
     </div>
     <script type="module" src="../src/scene.js"></script>
   </body>

@@ -1,13 +1,54 @@
-import { existsSync, mkdirSync, readdirSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { cpSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+
+/** Walk up from `start` looking for a directory that contains `.cursor/skills`. */
+function findProjectRootWithSkills(start: string): string | null {
+  let dir = resolve(start);
+  for (let i = 0; i < 8; i++) {
+    if (existsSync(join(dir, '.cursor', 'skills'))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+
+/** Resolve the base project root (parent of backend/ when run via npm scripts). */
+function resolveProjectRoot(): string {
+  const cwd = process.cwd();
+  return /[/\\]backend$/.test(cwd) ? resolve(cwd, '..') : cwd;
+}
+
+/**
+ * Absolute path to the `.cursor/skills` source to seed each workspace with.
+ * Override with SKILLS_SOURCE_DIR (path to a `.cursor/skills` folder or its parent).
+ */
+function resolveSkillsSource(): string | null {
+  const override = process.env.SKILLS_SOURCE_DIR?.trim();
+  if (override) {
+    const abs = resolve(override);
+    if (abs.endsWith(join('.cursor', 'skills'))) {
+      return existsSync(abs) ? abs : null;
+    }
+    const candidate = join(abs, '.cursor', 'skills');
+    return existsSync(candidate) ? candidate : null;
+  }
+  const root = findProjectRootWithSkills(process.cwd()) ?? resolveProjectRoot();
+  const candidate = join(root, '.cursor', 'skills');
+  return existsSync(candidate) ? candidate : null;
+}
 
 /**
  * Create the next numbered workspace under:
  *   <base>/video-workspaces/<username>/<n>/
  * where <n> is max(existing numeric folders) + 1, defaulting to 1.
  *
- * Base defaults to process.cwd() (typically the backend package when run via
- * npm scripts). Override with VIDEO_WORKSPACES_DIR for an absolute path to the
+ * By default the project's `.cursor/skills` is copied into the new workspace
+ * (at `<workspace>/.cursor/skills`) so the spawned agent has the MentorScroll
+ * skills available. Disable with VIDEO_CREATION_COPY_SKILLS=0.
+ *
+ * Base defaults to the project root (parent of backend/ when run via npm
+ * scripts). Override with VIDEO_WORKSPACES_DIR for an absolute path to the
  * video-workspaces parent (or the video-workspaces folder itself).
  */
 export function createNextWorkspace(username: string): string {
@@ -19,27 +60,32 @@ export function createNextWorkspace(username: string): string {
       ? abs
       : join(abs, 'video-workspaces');
   } else {
-    // Prefer project root (parent of backend/) when cwd is backend/
-    const cwd = process.cwd();
-    const projectRoot = /[/\\]backend$/.test(cwd) ? resolve(cwd, '..') : cwd;
-    workspacesRoot = join(projectRoot, 'video-workspaces');
+    workspacesRoot = join(resolveProjectRoot(), 'video-workspaces');
   }
 
   const userDir = join(workspacesRoot, username);
   mkdirSync(userDir, { recursive: true });
 
   let max = 0;
-  if (existsSync(userDir)) {
-    for (const name of readdirSync(userDir, { withFileTypes: true })) {
-      if (!name.isDirectory()) continue;
-      if (!/^\d+$/.test(name.name)) continue;
-      const n = Number(name.name);
-      if (Number.isFinite(n) && n > max) max = n;
-    }
+  for (const entry of readdirSync(userDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (!/^\d+$/.test(entry.name)) continue;
+    const n = Number(entry.name);
+    if (Number.isFinite(n) && n > max) max = n;
   }
 
   const next = max + 1;
   const workspace = join(userDir, String(next));
   mkdirSync(workspace, { recursive: true });
+
+  if (process.env.VIDEO_CREATION_COPY_SKILLS !== '0') {
+    const skillsSource = resolveSkillsSource();
+    if (skillsSource) {
+      const skillsDest = join(workspace, '.cursor', 'skills');
+      mkdirSync(dirname(skillsDest), { recursive: true });
+      cpSync(skillsSource, skillsDest, { recursive: true });
+    }
+  }
+
   return workspace;
 }

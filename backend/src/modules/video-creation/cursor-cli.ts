@@ -179,6 +179,10 @@ export async function spawnAgent(options: SpawnAgentOptions): Promise<ChildProce
     stdio: ['pipe', 'pipe', 'pipe'],
     env: buildAgentChildEnv({
       CURSOR_API_KEY: options.apiKey,
+      // Secrets the MentorScroll skills expect at agent runtime (TTS + web research + Mixamo).
+      ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY,
+      EXA_API_KEY: process.env.EXA_API_KEY,
+      MIXAMO_ACCESS_TOKEN: process.env.MIXAMO_ACCESS_TOKEN,
       ...(options.env ?? {}),
     }),
   });

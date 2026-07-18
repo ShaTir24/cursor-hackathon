@@ -14,7 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
 const OUT_DIR = path.join(ROOT, '..', 'outputs')
 const PORT = 5178
-const TOPIC = 'indian_freedom_fighters_marvel'
+const TOPIC = 'cap_theorem_marvel'
 
 function mime(p) {
   if (p.endsWith('.html')) return 'text/html'

@@ -1,6 +1,6 @@
 import { Body, Controller, MessageEvent, Post, Sse, UseGuards } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { Public } from '../auth/public.decorator';
+import { Public } from '../auth/jwt-auth.guard';
 import { ApiKeyGuard } from './api-key.guard';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { VideoCreationService } from './video-creation.service';
